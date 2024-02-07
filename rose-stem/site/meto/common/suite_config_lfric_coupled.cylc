@@ -1,0 +1,57 @@
+{# ########################################################################### #}
+{# (c) Crown copyright 2024 Met Office. All rights reserved. #}
+{# The file LICENCE, distributed with this code, contains details of the terms #}
+{# under which the code may be used. #}
+{# ########################################################################### #}
+{% do LOG.debug("Entered site/meto/common/suite_config_lfric_coupled.cylc") %}
+
+{% set xc40_coupled_base = 'umask 0022 ; '~
+                           'module use /data/d00/moci/MODULES_GC5/modules ; '~
+                           'module use /data/d03/lfric/modules/modulefiles ; '~
+                           'module load meto-gmake/4.3' %}
+
+{% if site_vars["meto_xc40"] == "xcs" %}
+    {% set xc40_coupled_base = 'umask 0022 ; '~
+                               'module use /data/d00/moci/MODULES_GC5/modules ; '~
+                               'module use /common/lfric/modules/modulefiles ; '~
+                               'module load meto-gmake/4.3' %}
+{% endif %}
+
+{% set xc40_coupled_intel = 'module load GC5-PrgEnv/intel/17.0.0.098/2022-06-ifort/4506 ; '~
+                            'module unload meto-rose-picker/1.0.0 ; '~
+                            'module load meto-python/3.7.0/venv-os45-1 ; '~
+                            'module load meto-rose-picker/2.0.0/python/3.7.0' %}
+{% if site_vars["meto_xc40"] == "xcs" %}
+    {% set xc40_coupled_intel = 'module load GC5-PrgEnv/intel/17.0.0.098/2022-06-ifort/4497 ; '~
+                                'module unload meto-rose-picker/1.0.0 ; '~
+                                'module load meto-python/3.7.0/venv-os45-1 ; '~
+                                'module load meto-rose-picker/2.0.0/python/3.7.0' %}
+{% endif %}
+
+{% set xc40_coupled_setup = 'module load cray-snplauncher/${CRAY_MPICH2_VER}' %}
+
+{% set xc40_coupled_run = '. /projects/ocean/nemo/ocean_ancil_versions/GO8/ocean_ancil_GO8p0_CORE_forcing_eORCA025 ; '~
+                          'DIAG_MEAN_PERIOD="INVALID_PERIOD" ; '~
+                          'ulimit -s unlimited' %}
+
+    [[XC40_COUPLED_BUILD_INTEL]]
+        inherit=XC40_BASE,XC40_BUILD,XC40_INTEL
+        {{ generate_script("pre-script", [xc40_coupled_base,
+                                          xc40_coupled_intel,
+                                          xc40_coupled_setup]) }}
+
+
+    [[XC40_COUPLED_RUN_INTEL]]
+        inherit=XC40_BASE,XC40_RUN,XC40_INTEL
+        {{ generate_script("pre-script", [xc40_coupled_base,
+                                          xc40_coupled_intel,
+                                          xc40_coupled_setup,
+                                          xc40_coupled_run]) }}
+
+    [[METO_FCM_MAKE]]
+        platform = spice
+        [[[directives]]]
+            --mem=1G
+            --ntasks=1
+
+{% do LOG.debug("Finished in sitemeto/common/suite_config_lfric_coupled.cylc") %}

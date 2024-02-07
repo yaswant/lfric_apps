@@ -1,0 +1,10 @@
+{# ########################################################################### #}
+{# (c) Crown copyright 2024 Met Office. All rights reserved. #}
+{# The file LICENCE, distributed with this code, contains details of the terms #}
+{# under which the code may be used. #}
+{# ########################################################################### #}
+{% do LOG.debug("Entered site/common/jedi_lfric_interface/tasks_jedi_lfric_interface.cylc") %}
+
+
+
+{% do LOG.debug("Finished in site/common/jedi_lfric_interface/tasks_jedi_lfric_interface.cylc") %}

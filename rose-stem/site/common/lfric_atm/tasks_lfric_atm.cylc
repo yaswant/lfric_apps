@@ -1,0 +1,39 @@
+{# ########################################################################### #}
+{# (c) Crown copyright 2024 Met Office. All rights reserved. #}
+{# The file LICENCE, distributed with this code, contains details of the terms #}
+{# under which the code may be used. #}
+{# ########################################################################### #}
+{% do LOG.debug("Entered site/common/lfric_atm/tasks_lfric_atm.cylc") %}
+
+{% if task_ns.conf_name == "nwp_gal9-C12" %}
+
+    {% do task_dict.update({
+        "opt_confs": ["nwp_gal9"],
+        "resolution": "C12",
+        "DT": 1800,
+        "tsteps": 144,
+        "crun": 2,
+        "crun_compare": false,
+        "mpi_parts": 6,
+        "threads": 2,
+        "kgo_checks": ["checksum"],
+        "plot_str": "plot_map.py $NODAL_DATA_DIR/lfric_gal_diagnostics.nc  $PLOT_DIR",
+    }) %}
+
+{% elif task.startswith("build") %}
+
+    {% do task_dict.update({
+        "placeholder": true,
+    }) %}
+
+{% endif %}
+
+{# Set default values for lfric_atm tasks #}
+{% if task_dict %}
+    {% do task_dict.update({"application_dir": "apps/applications/lfric_atm"}) %}
+    {% if "app_name" not in task_dict %}
+        {% do task_dict.update({"app_name": "lfric_atm"}) %}
+    {% endif %}
+{% endif %}
+
+{% do LOG.debug("Finished in site/common/lfric_atm/tasks_lfric_atm.cylc") %}

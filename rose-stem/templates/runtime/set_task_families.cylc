@@ -1,0 +1,40 @@
+{# ########################################################################### #}
+{# (c) Crown copyright 2024 Met Office. All rights reserved. #}
+{# The file LICENCE, distributed with this code, contains details of the terms #}
+{# under which the code may be used. #}
+{# ########################################################################### #}
+{% do LOG.debug("Entered templates/runtime/set_task_families.cylc") %}
+
+{# Define common task families that will be inherited by the tasks #}
+{# This is primarily to set groupings of tasks in the gui #}
+
+    [[EXPORT-SOURCE]]
+
+    [[BUILD]]
+
+    [[SCRIPTS]]
+
+    {# This family is for running check_kgo_groups when a kgo task fails #}
+    [[KGO_CHECKS]]
+
+{% for platform in requested_platforms %}
+    [[{{platform|upper}}]]
+
+    [[BUILD_{{platform|upper}}]]
+        inherit=BUILD
+
+    {% for application in requested_applications %}
+        {% for task in tasks_to_run %}
+            {% if application in task and platform in task and not task.startswith("build") %}
+    [[{{application|upper}}_{{platform|upper}}]]
+            inherit={{platform|upper}}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+{% endfor %}
+
+{% if HOUSEKEEPING %}
+    [[HOUSEKEEPING]]
+{% endif %}
+
+{% do LOG.debug("Finished in templates/runtime/set_task_families.cylc") %}

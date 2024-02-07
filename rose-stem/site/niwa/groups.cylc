@@ -1,0 +1,31 @@
+{% do LOG.debug("Entered site/niwa/groups.cylc") %}
+
+{# This groups file is an example for testing and not
+   representative of the final structure #}
+
+{%- do site_groups.update({
+    "all": [
+        "scripts",
+        "gungho",
+        "gungho_model",
+        "lfric_atm",
+    ],
+    "scripts": [
+        "config_dump_checker",
+        "style_checker",
+        "extract_checker",
+        "site_validator",
+    ],
+    "gungho": [
+        "gungho_unit_tests_xc50_intel_64bit",
+        "gungho_integration_tests_xc50_intel_64bit",
+    ],
+    "gungho_model": [
+        "gungho_model_baroclinic-C24_MG_xc50_intel_fast-debug-64bit",
+    ],
+    "lfric_atm": [
+        "lfric_atm_nwp_gal9-C12_xc50_intel_fast-debug-64bit",
+    ],
+    }) %}
+
+{% do LOG.debug("Finished in site/niwa/groups.cylc") %}

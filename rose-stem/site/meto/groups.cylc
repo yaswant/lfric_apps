@@ -1,0 +1,47 @@
+{# ########################################################################### #}
+{# (c) Crown copyright 2024 Met Office. All rights reserved. #}
+{# The file LICENCE, distributed with this code, contains details of the terms #}
+{# under which the code may be used. #}
+{# ########################################################################### #}
+{% do LOG.debug("Entered site/meto/groups.cylc") %}
+
+{# This groups file is an example for testing and not
+   representative of the final structure #}
+
+{%- do site_groups.update({
+    "all": [
+        "scripts",
+        "gungho",
+        "gungho_model",
+        "lfric_atm",
+    ],
+    "scripts": [
+        "config_dump_checker",
+        "style_checker",
+        "extract_checker",
+        "site_validator",
+        "validate_rose_meta",
+        "rose-stem_lint_checker",
+    ],
+    "gungho": [
+        "gungho_unit_tests_spice_intel_64bit",
+        "gungho_integration_tests_spice_intel_64bit",
+        "gungho_unit_tests_xc40_intel_64bit",
+        "gungho_integration_tests_xc40_intel_64bit",
+    ],
+    "gungho_model": [
+        "gungho_model_baroclinic-C24_MG_spice_intel_fast-debug-64bit",
+        "gungho_model_baroclinic-C24_MG_xc40_intel_fast-debug-64bit",
+        "build_gungho_model_spice_intel_fast-debug-64bit",
+    ],
+    "lfric_atm": [
+        "lfric_atm_nwp_gal9-C12_spice_intel_fast-debug-64bit",
+        "lfric_atm_nwp_gal9-C12_xc40_intel_fast-debug-64bit",
+    ],
+    "monsoon": [
+        "gungho_model_xc40",
+        "lfric_atm_xc40",
+    ],
+    }) %}
+
+{% do LOG.debug("Finished in site/meto/groups.cylc") %}
