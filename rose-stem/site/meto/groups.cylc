@@ -24,6 +24,7 @@
         "rose-stem_lint_checker",
         "global_variables_checker",
         "python_unit_tests",
+        "local_build_test",
     ],
     "build": [
         "spice_build",

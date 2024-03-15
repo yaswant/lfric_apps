@@ -63,11 +63,11 @@
 
     [[SPICE_BUILD_INTEL]]
         inherit=SPICE_BASE,SPICE_BUILD,SPICE_INTEL
-        {{ generate_script("pre-script", [spice_base, spice_compiler_intel]) }}
+        {{ generate_script("pre-script", [spice_base, spice_scitools, spice_compiler_intel]) }}
 
     [[SPICE_BUILD_GNU]]
         inherit=SPICE_BASE,SPICE_BUILD,SPICE_GNU
-        {{ generate_script("pre-script", [spice_base, spice_compiler_gnu]) }}
+        {{ generate_script("pre-script", [spice_base, spice_scitools, spice_compiler_gnu]) }}
 
     [[SPICE_RUN_INTEL]]
         inherit=SPICE_BASE,SPICE_RUN,SPICE_INTEL

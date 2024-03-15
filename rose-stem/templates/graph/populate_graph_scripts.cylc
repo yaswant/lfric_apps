@@ -47,6 +47,11 @@
             ]) %}
     {% endif %}
 
+{% elif "local_build_test" in task %}
+    {# Doesn't depend on export-source as required a Working Copy #}
+
+    {% do graph_sections.append([task]) %}
+
 {% else %}
     {# All other scripts have the same simple graph. These are: #}
     {# * config_dump_checker #}

@@ -92,6 +92,21 @@
         inherit={{inherit.str|upper}}
         script="rose task-run --app-key=python_unit_tests"
 
+{% elif "local_build_test" in task %}
+    {# Test the local_build script by building gungho_model #}
+
+    {% set local_build_inherit = "SCRIPTS,"~site_vars["scripts_platform"]|upper~"_BUILD_INTEL" %}
+
+    [[{{task}}]]
+        inherit={{local_build_inherit|upper}}
+        script = """
+                 scp -r $SOURCE_LFRIC_APPS $CYLC_TASK_WORK_DIR/apps_local_build_source
+                 cd $CYLC_TASK_WORK_DIR/apps_local_build_source
+	         python3 build/local_build.py -a gungho_model
+	         """
+	[[[environment]]]
+	    SOURCE_LFRIC_APPS = {{HOST_SOURCE_LFRIC_APPS}}
+
 {% endif %}
 
 
