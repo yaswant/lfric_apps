@@ -1,16 +1,23 @@
-@@ -1,9 +1,10 @@
+@@ -1,15 +1,16 @@
 -module adjoint_test_mod
-+module adjt_hydrostatic_alg_mod
++module atlt_hydrostatic_alg_mod
    implicit none
    public
  
    contains
 -  subroutine adjoint_test(mesh, chi, panel_id)
-+  subroutine adjt_hydrostatic_alg(mesh, chi, panel_id)
++  subroutine atlt_hydrostatic_alg(mesh, chi, panel_id)
 +    use assign_field_random_range_alg_mod, only : assign_field_random_range
      use field_mod, only : field_type
      use function_space_mod, only : function_space_type
      use mesh_mod, only : mesh_type
+     use function_space_collection_mod, only : function_space_collection
+     use tl_hydrostatic_kernel_mod, only : tl_hydrostatic_kernel_type
+-    use adj_hydrostatic_kernel_mod, only : adj_hydrostatic_kernel_type
++    use atl_hydrostatic_kernel_mod, only : atl_hydrostatic_kernel_type
+     use finite_element_config_mod, only : element_order
+     use fs_continuity_mod, only : w2, w3, wtheta
+     use constants_mod, only : i_def, r_def
 @@ -17,7 +18,9 @@
      use quadrature_rule_gaussian_mod, only : quadrature_rule_gaussian_type
      use setop_random_kernel_mod, only : setop_random_kernel_type
@@ -134,7 +141,8 @@
 -    ls_moist_dyn_fac_ls_moist_dyn_fac_input_inner_prod(1_i_def) = 0.0_r_def
 -    ls_moist_dyn_fac_ls_moist_dyn_fac_input_inner_prod(2_i_def) = 0.0_r_def
 -    ls_moist_dyn_fac_ls_moist_dyn_fac_input_inner_prod(3_i_def) = 0.0_r_def
-     call invoke(adj_hydrostatic_kernel_type(r_u, exner, theta, moist_dyn_fac, ls_exner, ls_theta, ls_moist_dyn_fac, cp, qr_xyoz), &
+-    call invoke(adj_hydrostatic_kernel_type(r_u, exner, theta, moist_dyn_fac, ls_exner, ls_theta, ls_moist_dyn_fac, cp, qr_xyoz), &
++    call invoke(atl_hydrostatic_kernel_type(r_u, exner, theta, moist_dyn_fac, ls_exner, ls_theta, ls_moist_dyn_fac, cp, qr_xyoz), &
  &x_innerproduct_y(r_u_r_u_input_inner_prod, r_u, r_u_input), x_innerproduct_y(exner_exner_input_inner_prod, exner, exner_input), &
  &x_innerproduct_y(theta_theta_input_inner_prod, theta, theta_input), &
  &x_innerproduct_y(moist_dyn_fac_moist_dyn_fac_input_inner_prod(1_i_def), moist_dyn_fac(1_i_def), moist_dyn_fac_input(1_i_def)), &
@@ -169,7 +177,7 @@
      end if
  
 -  end subroutine adjoint_test
-+  end subroutine adjt_hydrostatic_alg
++  end subroutine atlt_hydrostatic_alg
  
 -end module adjoint_test_mod
-+end module adjt_hydrostatic_alg_mod
++end module atlt_hydrostatic_alg_mod

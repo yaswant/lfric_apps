@@ -1,17 +1,20 @@
-@@ -1,9 +1,10 @@
+@@ -1,20 +1,23 @@
 -module adjoint_test_mod
-+module adjt_rhs_sample_eos_alg_mod
++module atlt_rhs_sample_eos_alg_mod
    implicit none
    public
  
    contains
 -  subroutine adjoint_test(mesh, chi, panel_id)
-+  subroutine adjt_rhs_sample_eos_alg(mesh, chi, panel_id)
++  subroutine atlt_rhs_sample_eos_alg(mesh, chi, panel_id)
 +    use assign_field_random_range_alg_mod, only : assign_field_random_range
      use field_mod, only : field_type
      use function_space_mod, only : function_space_type
      use mesh_mod, only : mesh_type
-@@ -13,8 +14,10 @@
+     use function_space_collection_mod, only : function_space_collection
+     use tl_rhs_sample_eos_kernel_mod, only : tl_rhs_sample_eos_kernel_type
+-    use adj_rhs_sample_eos_kernel_mod, only : adj_rhs_sample_eos_kernel_type
++    use atl_rhs_sample_eos_kernel_mod, only : atl_rhs_sample_eos_kernel_type
      use finite_element_config_mod, only : element_order
      use fs_continuity_mod, only : w3, wtheta
      use constants_mod, only : i_def, r_def
@@ -134,7 +137,8 @@
 -    ls_rho_ls_rho_input_inner_prod = 0.0_r_def
 -    ls_theta_ls_theta_input_inner_prod = 0.0_r_def
 -    ls_moist_dyn_gas_ls_moist_dyn_gas_input_inner_prod = 0.0_r_def
-     call invoke(adj_rhs_sample_eos_kernel_type(rhs_eos, exner, rho, theta, moist_dyn_gas, ls_exner, ls_rho, ls_theta, &
+-    call invoke(adj_rhs_sample_eos_kernel_type(rhs_eos, exner, rho, theta, moist_dyn_gas, ls_exner, ls_rho, ls_theta, &
++    call invoke(atl_rhs_sample_eos_kernel_type(rhs_eos, exner, rho, theta, moist_dyn_gas, ls_exner, ls_rho, ls_theta, &
  &ls_moist_dyn_gas, kappa, rd, p_zero), x_innerproduct_y(rhs_eos_rhs_eos_input_inner_prod, rhs_eos, rhs_eos_input), &
  &x_innerproduct_y(exner_exner_input_inner_prod, exner, exner_input), x_innerproduct_y(rho_rho_input_inner_prod, rho, rho_input), &
  &x_innerproduct_y(theta_theta_input_inner_prod, theta, theta_input), &
@@ -164,7 +168,7 @@
      end if
  
 -  end subroutine adjoint_test
-+  end subroutine adjt_rhs_sample_eos_alg
++  end subroutine atlt_rhs_sample_eos_alg
  
 -end module adjoint_test_mod
-+end module adjt_rhs_sample_eos_alg_mod
++end module atlt_rhs_sample_eos_alg_mod

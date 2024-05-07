@@ -23,16 +23,17 @@ def add_to_driver(psyad_file: Path, driver_target: Path) -> None:
     name = str(psyad_file).rsplit("/", maxsplit=1)[-1]
     name = name.replace("_kernel_mod", "")
     name = name.split(".")[0]
-    # Short name has no prefix.
-    # Used in the adjoint test alg module loading.
-    short = name
+
+    # Generating name of algorithm from kernel name.
     if name[0:3] == "tl_":
-        short = short[3:]
+        alg_name = f"atlt_{name[3:]}"
+    else:
+        alg_name = f"adjt_{name}"
 
     now = datetime.now().strftime("%H:%M:%S")
     print(f"{now} *Adding* {name} to driver")
-    module_line = f"use adjt_{short}_alg_mod, only : adjt_{short}_alg"
-    call_line = f"call adjt_{short}_alg( mesh, chi, panel_id )"
+    module_line = f"use {alg_name}_alg_mod, only : {alg_name}_alg"
+    call_line = f"call {alg_name}_alg( mesh, chi, panel_id )"
     # Inserts commands before comment in driver
     module_command = fr'sed -i "/! <adjoint_test_mod>/i \   \ {module_line}"'
     module_command = f'{module_command} {driver_target}'

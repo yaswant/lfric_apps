@@ -13,6 +13,32 @@ define POST_PATCH
 #-----------------------------------------------------------------------------
 # For F90s and X90s
 #-----------------------------------------------------------------------------
+# For atl kernels and atlt algorithms.
+# If a patch exists, copy and patch the generated adjoint into working.
+$(WORKING_DIR)/$1/atl_%_mod.F90: \
+$(PSYAD_WDIR)/$1/atl_%_mod.F90 \
+$(PATCH_DIR)/kernel/atl_%_mod.patch | $(DIRECTORIES)
+	cp $$< $$@
+	patch $$@ $$(word 2,$$^)
+
+# If a patch exists, copy and patch the generated adjoint test into working.
+$(WORKING_DIR)/$2/atlt_%_alg_mod.X90: \
+$(PSYAD_WDIR)/$2/atlt_%_alg_mod.X90 \
+$(PATCH_DIR)/algorithm/atlt_%_alg_mod.patch | $(DIRECTORIES)
+	cp $$< $$@
+	patch $$@ $$(word 2,$$^)
+
+# If no patch exists, just copy the generated adjoint into working.
+$(WORKING_DIR)/$1/atl_%_mod.F90: \
+$(PSYAD_WDIR)/$1/atl_%_mod.F90 | $(DIRECTORIES)
+	cp $$< $$@
+
+# If no patch exists, just copy the generated adjoint test into working.
+$(WORKING_DIR)/$2/atlt_%_alg_mod.X90: \
+$(PSYAD_WDIR)/$2/atlt_%_alg_mod.X90 | $(DIRECTORIES)
+	cp $$< $$@
+
+# For regular kernels and algorithms.
 # If a patch exists, copy and patch the generated adjoint into working.
 $(WORKING_DIR)/$1/adj_%_mod.F90: \
 $(PSYAD_WDIR)/$1/adj_%_mod.F90 \
@@ -40,6 +66,32 @@ $(PSYAD_WDIR)/$2/adjt_%_alg_mod.X90 | $(DIRECTORIES)
 #-----------------------------------------------------------------------------
 # For f90s and x90s
 #-----------------------------------------------------------------------------
+# For atl kernels and atlt algorithms.
+# If a patch exists, copy and patch the generated adjoint into working.
+$(WORKING_DIR)/$1/atl_%_mod.f90: \
+$(PSYAD_WDIR)/$1/atl_%_mod.f90 \
+$(PATCH_DIR)/kernel/atl_%_mod.patch | $(DIRECTORIES)
+	cp $$< $$@
+	patch $$@ $$(word 2,$$^)
+
+# If a patch exists, copy and patch the generated adjoint test into working.
+$(WORKING_DIR)/$2/atlt_%_alg_mod.x90: \
+$(PSYAD_WDIR)/$2/atlt_%_alg_mod.x90 \
+$(PATCH_DIR)/algorithm/atlt_%_alg_mod.patch | $(DIRECTORIES)
+	cp $$< $$@
+	patch $$@ $$(word 2,$$^)
+
+# If no patch exists, just copy the generated adjoint into working.
+$(WORKING_DIR)/$1/atl_%_mod.f90: \
+$(PSYAD_WDIR)/$1/atl_%_mod.f90 | $(DIRECTORIES)
+	cp $$< $$@
+
+# If no patch exists, just copy the generated adjoint test into working.
+$(WORKING_DIR)/$2/atlt_%_alg_mod.x90: \
+$(PSYAD_WDIR)/$2/atlt_%_alg_mod.x90 | $(DIRECTORIES)
+	cp $$< $$@
+
+# For regular kernels and algorithms.
 # If a patch exists, copy and patch the generated adjoint into working.
 $(WORKING_DIR)/$1/adj_%_mod.f90: \
 $(PSYAD_WDIR)/$1/adj_%_mod.f90 \

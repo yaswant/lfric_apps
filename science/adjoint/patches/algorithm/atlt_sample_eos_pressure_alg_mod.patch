@@ -1,15 +1,22 @@
-@@ -1,9 +1,9 @@
+@@ -1,15 +1,15 @@
 -module adjoint_test_mod
-+module adjt_sample_eos_pressure_alg_mod
++module atlt_sample_eos_pressure_alg_mod
    implicit none
    public
  
    contains
 -  subroutine adjoint_test(mesh, chi, panel_id)
-+  subroutine adjt_sample_eos_pressure_alg(mesh, chi, panel_id)
++  subroutine atlt_sample_eos_pressure_alg(mesh, chi, panel_id)
      use field_mod, only : field_type
      use function_space_mod, only : function_space_type
      use mesh_mod, only : mesh_type
+     use function_space_collection_mod, only : function_space_collection
+     use tl_sample_eos_pressure_kernel_mod, only : tl_sample_eos_pressure_kernel_type
+-    use adj_sample_eos_pressure_kernel_mod, only : adj_sample_eos_pressure_kernel_type
++    use atl_sample_eos_pressure_kernel_mod, only : atl_sample_eos_pressure_kernel_type
+     use finite_element_config_mod, only : element_order
+     use fs_continuity_mod, only : w3, wtheta
+     use constants_mod, only : i_def, r_def
 @@ -32,24 +32,15 @@
      type(field_type) :: rho_input
      type(field_type) :: theta_input
@@ -75,7 +82,8 @@
 -    ls_rho_ls_rho_input_inner_prod = 0.0_r_def
 -    ls_theta_ls_theta_input_inner_prod = 0.0_r_def
 -    ls_moist_dyn_gas_ls_moist_dyn_gas_input_inner_prod = 0.0_r_def
-     call invoke(adj_sample_eos_pressure_kernel_type(exner, rho, theta, moist_dyn_gas, ls_rho, ls_theta, ls_moist_dyn_gas), &
+-    call invoke(adj_sample_eos_pressure_kernel_type(exner, rho, theta, moist_dyn_gas, ls_rho, ls_theta, ls_moist_dyn_gas), &
++    call invoke(atl_sample_eos_pressure_kernel_type(exner, rho, theta, moist_dyn_gas, ls_rho, ls_theta, ls_moist_dyn_gas), &
  &x_innerproduct_y(exner_exner_input_inner_prod, exner, exner_input), x_innerproduct_y(rho_rho_input_inner_prod, rho, rho_input), &
  &x_innerproduct_y(theta_theta_input_inner_prod, theta, theta_input), &
 -&x_innerproduct_y(moist_dyn_gas_moist_dyn_gas_input_inner_prod, moist_dyn_gas, moist_dyn_gas_input), &
@@ -99,7 +107,7 @@
      end if
  
 -  end subroutine adjoint_test
-+  end subroutine adjt_sample_eos_pressure_alg
++  end subroutine atlt_sample_eos_pressure_alg
  
 -end module adjoint_test_mod
-+end module adjt_sample_eos_pressure_alg_mod
++end module atlt_sample_eos_pressure_alg_mod

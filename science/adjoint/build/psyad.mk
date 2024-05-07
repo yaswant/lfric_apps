@@ -19,27 +19,31 @@ define PSYAD
 # pattern rule causes race conditions when run in parallel. This faux rule
 # exists so Make knows the adjoint test has been created after the adjoint
 # is made. This implementation avoids such race conditions.
+$(PSYAD_WDIR)/$2/atlt_%_alg_mod.X90: $(PSYAD_WDIR)/$1/atl_%_kernel_mod.F90 \
+	| $(DIRECTORIES)
+	echo $$(notdir $$@) generated with $$(notdir $$<)
+
 $(PSYAD_WDIR)/$2/adjt_%_alg_mod.X90: $(PSYAD_WDIR)/$1/adj_%_kernel_mod.F90 \
 	| $(DIRECTORIES)
 	echo $$(notdir $$@) generated with $$(notdir $$<)
 
 # Runs PSyAD:
 # For tl kernels.
-$(PSYAD_WDIR)/$1/adj_%_kernel_mod.F90: $(PSYAD_WDIR)/$1/tl_%_kernel_mod.F90 \
+$(PSYAD_WDIR)/$1/atl_%_kernel_mod.F90: $(PSYAD_WDIR)/$1/tl_%_kernel_mod.F90 \
 	| $(DIRECTORIES)
 
-	# Generating ADJT_TARGET
-	$$(eval ADJT_TARGET := $$(join $$(dir $$<), $$(subst tl_,adjt_,$$(notdir $$<))))
-	$$(eval ADJT_TARGET := $$(subst kernel_mod,alg_mod,$$(ADJT_TARGET)))
-	$$(eval ADJT_TARGET := $$(subst .F90,.X90,$$(ADJT_TARGET)))
-	$$(eval ADJT_TARGET := $$(subst $$(PSYAD_WDIR)/kernel,$$(PSYAD_WDIR)/algorithm,$$(ADJT_TARGET)))
+	# Generating ATLT_TARGET
+	$$(eval ATLT_TARGET := $$(join $$(dir $$<), $$(subst tl_,atlt_,$$(notdir $$<))))
+	$$(eval ATLT_TARGET := $$(subst kernel_mod,alg_mod,$$(ATLT_TARGET)))
+	$$(eval ATLT_TARGET := $$(subst .F90,.X90,$$(ATLT_TARGET)))
+	$$(eval ATLT_TARGET := $$(subst $$(PSYAD_WDIR)/kernel,$$(PSYAD_WDIR)/algorithm,$$(ATLT_TARGET)))
 
 	# Evaluating active variables located in $(ADJOINT_BUILD)/psyad_vars.mk
 	$$(eval ACTIVE_VARS := $$(ACTIVE_$$(basename $$(notdir $$<))))
 
 	# Running PSyAD
 	echo "*Running* PSyAD on $$(basename $$(notdir $$<))"
-	psyad -api dynamo0.3 -t -otest $$(ADJT_TARGET) -oad $$@ -a $$(ACTIVE_VARS) -- $$<
+	psyad -api dynamo0.3 -t -otest $$(ATLT_TARGET) -oad $$@ -a $$(ACTIVE_VARS) -- $$<
 
 # For regular kernels.
 $(PSYAD_WDIR)/$1/adj_%_kernel_mod.F90: $(PSYAD_WDIR)/$1/%_kernel_mod.F90 \
@@ -65,27 +69,31 @@ $(PSYAD_WDIR)/$1/adj_%_kernel_mod.F90: $(PSYAD_WDIR)/$1/%_kernel_mod.F90 \
 # pattern rule causes race conditions when run in parallel. This faux rule
 # exists so Make knows the adjoint test has been created after the adjoint
 # is made. This implementation avoids such race conditions.
+$(PSYAD_WDIR)/$2/atlt_%_alg_mod.x90: $(PSYAD_WDIR)/$1/atl_%_kernel_mod.f90 \
+	| $(DIRECTORIES)
+	echo $$(notdir $$@) generated with $$(notdir $$<)
+
 $(PSYAD_WDIR)/$2/adjt_%_alg_mod.x90: $(PSYAD_WDIR)/$1/adj_%_kernel_mod.f90 \
 	| $(DIRECTORIES)
 	echo $$(notdir $$@) generated with $$(notdir $$<)
 
 # Runs PSyAD:
 # For tl kernels.
-$(PSYAD_WDIR)/$1/adj_%_kernel_mod.f90: $(PSYAD_WDIR)/$1/tl_%_kernel_mod.f90 \
+$(PSYAD_WDIR)/$1/atl_%_kernel_mod.f90: $(PSYAD_WDIR)/$1/tl_%_kernel_mod.f90 \
 	| $(DIRECTORIES)
 
-	# Generating ADJT_TARGET
-	$$(eval ADJT_TARGET := $$(join $$(dir $$<), $$(subst tl_,adjt_,$$(notdir $$<))))
-	$$(eval ADJT_TARGET := $$(subst kernel_mod,alg_mod,$$(ADJT_TARGET)))
-	$$(eval ADJT_TARGET := $$(subst .f90,.x90,$$(ADJT_TARGET)))
-	$$(eval ADJT_TARGET := $$(subst $$(PSYAD_WDIR)/kernel,$$(PSYAD_WDIR)/algorithm,$$(ADJT_TARGET)))
+	# Generating ATLT_TARGET
+	$$(eval ATLT_TARGET := $$(join $$(dir $$<), $$(subst tl_,atlt_,$$(notdir $$<))))
+	$$(eval ATLT_TARGET := $$(subst kernel_mod,alg_mod,$$(ATLT_TARGET)))
+	$$(eval ATLT_TARGET := $$(subst .f90,.x90,$$(ATLT_TARGET)))
+	$$(eval ATLT_TARGET := $$(subst $$(PSYAD_WDIR)/kernel,$$(PSYAD_WDIR)/algorithm,$$(ATLT_TARGET)))
 
 	# Evaluating active variables located in $(ADJOINT_BUILD)/psyad_vars.mk
 	$$(eval ACTIVE_VARS := $$(ACTIVE_$$(basename $$(notdir $$<))))
 
 	# Running PSyAD
 	echo "*Running* PSyAD on $$(basename $$(notdir $$<))"
-	psyad -api dynamo0.3 -t -otest $$(ADJT_TARGET) -oad $$@ -a $$(ACTIVE_VARS) -- $$<
+	psyad -api dynamo0.3 -t -otest $$(ATLT_TARGET) -oad $$@ -a $$(ACTIVE_VARS) -- $$<
 
 # For regular kernels.
 $(PSYAD_WDIR)/$1/adj_%_kernel_mod.f90: $(PSYAD_WDIR)/$1/%_kernel_mod.f90 \

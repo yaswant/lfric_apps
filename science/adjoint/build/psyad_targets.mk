@@ -46,28 +46,28 @@ WORKING_REG := $(filter-out $(WORKING_TL), $(PRE_PATCH_TARGETS))
 
 # Now we can generate the PSyAD targets based on the different prefixes.
 # tl kernel files
-TLK_ADJ_TARGETS := $(join $(dir $(WORKING_TL)), $(subst tl_,adj_,$(notdir $(WORKING_TL))))
+ATL_TARGETS := $(join $(dir $(WORKING_TL)), $(subst tl_,atl_,$(notdir $(WORKING_TL))))
 
 # And their corresponding adjoint tests.
-TLK_ADJT_TARGETS := $(join $(dir $(WORKING_TL)), $(subst tl_,adjt_,$(notdir $(WORKING_TL))))
-TLK_ADJT_TARGETS := $(subst kernel_mod,alg_mod,$(TLK_ADJT_TARGETS))
-TLK_ADJT_TARGETS := $(subst .F90,.X90,$(TLK_ADJT_TARGETS))
-TLK_ADJT_TARGETS := $(subst .f90,.x90,$(TLK_ADJT_TARGETS))
-TLK_ADJT_TARGETS := $(subst $(PSYAD_WDIR)/kernel,$(PSYAD_WDIR)/algorithm,$(TLK_ADJT_TARGETS))
+ATLT_TARGETS := $(join $(dir $(WORKING_TL)), $(subst tl_,atlt_,$(notdir $(WORKING_TL))))
+ATLT_TARGETS := $(subst kernel_mod,alg_mod,$(ATLT_TARGETS))
+ATLT_TARGETS := $(subst .F90,.X90,$(ATLT_TARGETS))
+ATLT_TARGETS := $(subst .f90,.x90,$(ATLT_TARGETS))
+ATLT_TARGETS := $(subst $(PSYAD_WDIR)/kernel,$(PSYAD_WDIR)/algorithm,$(ATLT_TARGETS))
 
 # Regular kernel files
-REGK_ADJ_TARGETS := $(join $(dir $(WORKING_REG)), $(addprefix adj_, $(notdir $(WORKING_REG))))
+ADJ_TARGETS := $(join $(dir $(WORKING_REG)), $(addprefix adj_, $(notdir $(WORKING_REG))))
 
 # And their corresponding adjoint tests.
-REGK_ADJT_TARGETS := $(join $(dir $(WORKING_REG)), $(addprefix adjt_, $(notdir $(WORKING_REG))))
-REGK_ADJT_TARGETS := $(subst kernel_mod,alg_mod,$(REGK_ADJT_TARGETS))
-REGK_ADJT_TARGETS := $(subst .F90,.X90,$(REGK_ADJT_TARGETS))
-REGK_ADJT_TARGETS := $(subst .f90,.x90,$(REGK_ADJT_TARGETS))
-REGK_ADJT_TARGETS := $(subst $(PSYAD_WDIR)/kernel,$(PSYAD_WDIR)/algorithm,$(REGK_ADJT_TARGETS))
+ADJT_TARGETS := $(join $(dir $(WORKING_REG)), $(addprefix adjt_, $(notdir $(WORKING_REG))))
+ADJT_TARGETS := $(subst kernel_mod,alg_mod,$(ADJT_TARGETS))
+ADJT_TARGETS := $(subst .F90,.X90,$(ADJT_TARGETS))
+ADJT_TARGETS := $(subst .f90,.x90,$(ADJT_TARGETS))
+ADJT_TARGETS := $(subst $(PSYAD_WDIR)/kernel,$(PSYAD_WDIR)/algorithm,$(ADJT_TARGETS))
 
 # Total targets for PSyAD stage.
-PSYADJ_TARGETS  := $(TLK_ADJ_TARGETS) $(REGK_ADJ_TARGETS)
-PSYADJT_TARGETS := $(TLK_ADJT_TARGETS) $(REGK_ADJT_TARGETS)
+PSYADJ_TARGETS  := $(ATL_TARGETS) $(ADJ_TARGETS)
+PSYADJT_TARGETS := $(ATLT_TARGETS) $(ADJT_TARGETS)
 PSYAD_TARGETS := $(PSYADJ_TARGETS) $(PSYADJT_TARGETS)
 
 ##############################################################################

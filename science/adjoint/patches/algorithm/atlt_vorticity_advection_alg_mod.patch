@@ -1,15 +1,22 @@
-@@ -1,9 +1,9 @@
+@@ -1,15 +1,15 @@
 -module adjoint_test_mod
-+module adjt_vorticity_advection_alg_mod
++module atlt_vorticity_advection_alg_mod
    implicit none
    public
  
    contains
 -  subroutine adjoint_test(mesh, chi, panel_id)
-+  subroutine adjt_vorticity_advection_alg(mesh, chi, panel_id)
++  subroutine atlt_vorticity_advection_alg(mesh, chi, panel_id)
      use field_mod, only : field_type
      use function_space_mod, only : function_space_type
      use mesh_mod, only : mesh_type
+     use function_space_collection_mod, only : function_space_collection
+     use tl_vorticity_advection_kernel_mod, only : tl_vorticity_advection_kernel_type
+-    use adj_vorticity_advection_kernel_mod, only : adj_vorticity_advection_kernel_type
++    use atl_vorticity_advection_kernel_mod, only : atl_vorticity_advection_kernel_type
+     use finite_element_config_mod, only : element_order
+     use fs_continuity_mod, only : w1, w2, w3, wchi
+     use quadrature_xyoz_mod, only : quadrature_xyoz_type
 @@ -30,32 +30,18 @@
      type(field_type) :: vorticity
      type(field_type) :: ls_wind
@@ -106,7 +113,7 @@
 -    chi_3_chi_3_input_inner_prod(3_i_def) = 0.0_r_def
 -    panel_id_1_panel_id_1_input_inner_prod = 0.0_r_def
 -    call invoke(adj_vorticity_advection_kernel_type(r_u, wind, vorticity, ls_wind, ls_vorticity, chi_3, panel_id_1, qr_xyoz), &
-+    call invoke(adj_vorticity_advection_kernel_type(r_u, wind, vorticity, ls_wind, ls_vorticity, chi, panel_id, qr_xyoz), &
++    call invoke(atl_vorticity_advection_kernel_type(r_u, wind, vorticity, ls_wind, ls_vorticity, chi, panel_id, qr_xyoz), &
  &x_innerproduct_y(r_u_r_u_input_inner_prod, r_u, r_u_input), x_innerproduct_y(wind_wind_input_inner_prod, wind, wind_input), &
 -&x_innerproduct_y(vorticity_vorticity_input_inner_prod, vorticity, vorticity_input), &
 -&x_innerproduct_y(ls_wind_ls_wind_input_inner_prod, ls_wind, ls_wind_input), &
@@ -134,7 +141,7 @@
      end if
  
 -  end subroutine adjoint_test
-+  end subroutine adjt_vorticity_advection_alg
++  end subroutine atlt_vorticity_advection_alg
  
 -end module adjoint_test_mod
-+end module adjt_vorticity_advection_alg_mod
++end module atlt_vorticity_advection_alg_mod
