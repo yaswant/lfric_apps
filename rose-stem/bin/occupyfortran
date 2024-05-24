@@ -26,15 +26,6 @@ VALID_APPS = [
     "science/socrates_interface",
     "science/um_physics_interface",
 ]
-VALID_CORE = [
-    "components/driver",
-    "components/inventory",
-    "components/lfric-xios",
-    "components/science",
-    "infrastructure",
-    "mesh_tools",
-    "miniapps/skeleton",
-]
 
 if __name__ == "__main__":
     TEXT = "Searches Fortran source for global variables."
@@ -103,11 +94,8 @@ if __name__ == "__main__":
 
     dirty_list = []
 
-    for app in VALID_APPS + VALID_CORE:
-        if app in VALID_APPS:
-            app = os.path.join("apps", app)
-        else:
-            app = os.path.join("core", app)
+    for app in VALID_APPS:
+        app = os.path.join("apps", app)
 
         source_path = os.path.join(arguments.directory, app, arguments.filename)
         file_objects: List[Path] = [Path(source_path)]
