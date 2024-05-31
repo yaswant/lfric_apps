@@ -17,8 +17,7 @@ module lam_rhs_alg_mod
   use io_config_mod,               only: subroutine_timers
   use timer_mod,                   only: timer
   use derived_config_mod,          only: bundle_size
-  use si_operators_alg_mod,        only: get_ptheta2, &
-                                         get_rho_at_u
+  use si_operators_alg_mod,        only: get_rho_at_u
   use fem_constants_mod,           only: get_im3_div,        &
                                          get_w2_mass_matrix, &
                                          w2_si_matrix
@@ -94,7 +93,6 @@ contains
     type(field_type),    pointer :: boundary_u => null()
     type(operator_type), pointer :: mm_vel     => null(), &
                                     div        => null()
-    type(operator_type)          :: ptheta2
     type(field_type),    pointer :: mt_lumped_inv => null(), &
                                     m2_diag       => null()
     type(field_type)             :: rho_at_u, &
@@ -108,7 +106,6 @@ contains
     integer(i_def)               :: mesh_id
 
     type(r_solver_field_type), pointer :: r_solver_rho_at_u => null()
-    type(r_solver_operator_type), pointer :: r_solver_ptheta2 => null()
 
     if ( subroutine_timers ) call timer('rhs_lbc')
 
@@ -128,10 +125,6 @@ contains
     mm_vel => get_w2_mass_matrix(w2_si_matrix, mesh_id)
 
     ! Obtain operators from SI operators
-    r_solver_ptheta2  => get_ptheta2()
-    call ptheta2%initialise( rhs(igh_t)%get_function_space(), &
-                             rhs(igh_u)%get_function_space() )
-    call invoke( operator_setval_x_kernel_type(ptheta2, r_solver_ptheta2) )
     r_solver_rho_at_u => get_rho_at_u()
     call rho_at_u%initialise( vector_space = rhs(igh_u)%get_function_space() )
     call invoke_copy_to_rdef(rho_at_u, r_solver_rho_at_u)
@@ -154,10 +147,9 @@ contains
                                                    rhs(igh_u),     &
                                                    u_tmp),         &
                       enforce_bc_kernel_type(      rhs(igh_u) ),   &
-         ! L_theta
-                      dg_inc_matrix_vector_kernel_type(rhs(igh_t), &
-                                                   boundary_u,     &
-                                                   ptheta2 ),      &
+         ! L_theta - rhs(igh_t) = ptheta2 * boundary_u, but as
+         !           boundary_u is only non-zero in the horizontal,
+         !           this is zero and hence this step is omitted.             
          ! L_rho
                       X_times_Y(                   f_star,         &
                                                    rho_at_u,       &
@@ -176,7 +168,7 @@ contains
 
     nullify ( boundary_u, w2_mask, w3_mask, wtheta_mask )
     nullify ( div, mt_lumped_inv, m2_diag, mm_vel )
-    nullify ( r_solver_ptheta2, r_solver_rho_at_u )
+    nullify ( r_solver_rho_at_u )
 
     if ( subroutine_timers ) call timer('rhs_lbc')
 

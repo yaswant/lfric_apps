@@ -826,7 +826,7 @@ contains
           !--------------------------------------------------------------------
           ! Compute the LAM LBCs and RHS
           !--------------------------------------------------------------------
-          if ( limited_area ) then
+          if ( limited_area .and. inner == 1 .and. outer == 1 ) then
             call lam_solver_lbc(self%state(igh_u), lbc_fields)
             call calc_rhs_lbc(self%rhs_lbc, lbc_fields)
           end if
@@ -842,8 +842,10 @@ contains
           call add_bundle(self%rhs_np1, self%rhs_phys, self%rhs_np1, bundle_size)
 
           if ( limited_area ) then
-            ! Add on the RHS for LBCs
-            call add_bundle(self%rhs_np1, self%rhs_lbc, self%rhs_np1, bundle_size)
+            if ( inner == 1 .and. outer == 1 ) then
+              ! Add on the RHS for LBCs
+              call add_bundle(self%rhs_np1, self%rhs_lbc, self%rhs_np1, bundle_size)
+            end if
             ! Apply masks to RHS
             call apply_mask_rhs(self%rhs_np1)
           end if
