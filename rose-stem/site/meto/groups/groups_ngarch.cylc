@@ -1,0 +1,75 @@
+{# ########################################################################### #}
+{# (c) Crown copyright 2024 Met Office. All rights reserved. #}
+{# The file LICENCE, distributed with this code, contains details of the terms #}
+{# under which the code may be used. #}
+{# ########################################################################### #}
+{% do LOG.debug("Entered site/meto/groups/groups_ngarch.cylc") %}
+
+{# Spice Groups #}
+{% do site_groups.update({
+    "ngarch_spice_developer": [
+        "ngarch_default-C24_spice_intel_fast-debug-64bit",
+        "ngarch_default-C24_spice_intel_full-debug-64bit",
+        "ngarch_default-C24_spice_gnu_fast-debug-64bit",
+        "ngarch_default-C24_spice_gnu_full-debug-64bit",
+    ],
+    "ngarch_spice": [
+        "ngarch_spice_developer",
+    ],
+    "ngarch_spice_build": [
+        "build_ngarch_spice_intel_fast-debug-64bit",
+        "build_ngarch_spice_intel_full-debug-64bit",
+        "build_ngarch_spice_gnu_fast-debug-64bit",
+        "build_ngarch_spice_gnu_full-debug-64bit",
+    ],
+    })  %}
+
+{# XC40 Groups #}
+{% do site_groups.update({
+    "ngarch_xc40_developer": [
+        "ngarch_default-C24_xc40_intel_fast-debug-64bit",
+        "ngarch_default-C24_xc40_intel_full-debug-64bit",
+    ],
+    "ngarch_xc40": [
+        "ngarch_xc40_developer",
+    ],
+    "ngarch_xc40_build": [
+        "build_ngarch_xc40_intel_fast-debug-64bit",
+        "build_ngarch_xc40_intel_full-debug-64bit",
+    ],
+    })  %}
+
+{# Platform Generic Groups #}
+{% do site_groups.update({
+    "ngarch_developer": [
+        "scripts",
+        "ngarch_spice_developer",
+        "ngarch_xc40_developer",
+    ],
+    "ngarch": [
+        "ngarch_developer",
+        "ngarch_spice",
+        "ngarch_xc40",
+    ],
+    "ngarch_build": [
+        "ngarch_spice_build",
+        "ngarch_xc40_build",
+    ],
+    }) %}
+
+{# Platform Generic Extends #}
+{% do site_groups.developer.extend(site_groups.ngarch_developer) %}
+{% do site_groups.all.extend(site_groups.ngarch) %}
+{% do site_groups.build.extend(site_groups.ngarch_build) %}
+
+{# Spice Extends #}
+{% do site_groups.spice_developer.extend(site_groups.ngarch_spice_developer) %}
+{% do site_groups.spice.extend(site_groups.ngarch_spice) %}
+{% do site_groups.spice_build.extend(site_groups.ngarch_spice_build) %}
+
+{# XC40 Extends #}
+{% do site_groups.xc40_developer.extend(site_groups.ngarch_xc40_developer) %}
+{% do site_groups.xc40.extend(site_groups.ngarch_xc40) %}
+{% do site_groups.xc40_build.extend(site_groups.ngarch_xc40_build) %}
+
+{% do LOG.debug("Finished in site/meto/groups/groups_ngarch.cylc") %}

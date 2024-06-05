@@ -22,7 +22,8 @@
                                                "lfric_coupled",
                                                "jedi_lfric_interface",
                                                "coupled_interface",
-                                               "adjoint_tests"]}) %}
+                                               "adjoint_tests",
+                                               "ngarch"]}) %}
 
 {% do site_vars.update({"site_platforms": ["spice",
                                            "xc40",

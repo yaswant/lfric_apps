@@ -26,6 +26,7 @@ DEFAULT_APPS = {
     "lfric_atm": ["lfric_atm"],
     "lfric_coupled": ["lfric_coupled"],
     "linear_model": ["linear_model"],
+    "ngarch": ["ngarch"],
     "shallow_water": ["shallow_water"],
     "solver": ["solver"],
 }
@@ -46,6 +47,7 @@ APPLICATIONS = [
     "lfric_coupled",
     "linear_model",
     "multires_coupling",
+    "ngarch",
     "shallow_water",
     "solver",
 ]
