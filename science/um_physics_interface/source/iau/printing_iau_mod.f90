@@ -12,8 +12,9 @@ module printing_iau_mod
   use field_mod,               only : field_type
   use iau_config_mod,          only : iau_wet_density
   use log_mod,                 only : log_level
-  use sci_print_meanrms_field_mod, only : print_meanrms_field
-  use sci_field_minmax_alg_mod, only : log_field_minmax
+  use print_meanrms_field_mod, only : print_meanrms_field
+  use sci_field_minmax_alg_mod, &
+                               only : log_field_minmax
 
   implicit none
 

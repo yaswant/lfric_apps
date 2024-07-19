@@ -43,7 +43,7 @@ module update_iau_inc_alg_mod
                                                print_meanrms_iau,        &
                                                print_minmax_cld,         &
                                                print_meanrms_cld
-  use sci_print_meanrms_field_mod,      only : print_meanrms_field
+  use print_meanrms_field_mod,          only : print_meanrms_field
   use locate_tropopause_alg_mod,        only : locate_tropopause_alg
   use sci_field_minmax_alg_mod,         only : log_field_minmax
   use sci_set_any_dof_kernel_mod,       only : set_any_dof_kernel_type
