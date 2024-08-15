@@ -15,10 +15,17 @@
 
 {# Set the family inheritance for this task #}
 {% set inherit = namespace(str="") %}
-{% set inherit.str = "SCRIPTS" %}
+{% if "kgo_groups_checker" not in task %}
+    {# The SCRIPTS family is used as a trigger for the housekeeping task #}
+    {# Dont want housekeeping to depend on the kgo_checker #}
+    {# So kgo_checker not part of SCRIPTS family #}
+    {% set inherit.str = "SCRIPTS" %}
+{% endif %}
 {% for family in task_values["script_families"] %}
     {% set inherit.str = inherit.str~","~family|upper %}
 {% endfor %}
+{# Remove leading commas  #}
+{% set inherit.str = inherit.str|trim(",") %}
 
 {# ######################## #}
 {# Scripts Runtime Sections #}
