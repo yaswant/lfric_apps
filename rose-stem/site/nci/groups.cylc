@@ -6,6 +6,11 @@
 {% do LOG.debug("Entered site/nci/groups.cylc") %}
 
 {%- do site_groups.update({
+    "nightly_gadi_developer" : [
+        "gungho_model_gadi_developer",
+        "lfric_atm_gadi_developer",
+        "lfricinputs_gadi_developer",
+    ],
     "developer" : [
         "gadi_developer",
         "scripts",
