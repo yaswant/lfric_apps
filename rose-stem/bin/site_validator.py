@@ -22,6 +22,7 @@ WORKING_CONFIGS = {
     "nci": ["all"],
     "niwa" : ["all"],
     "ncas" : ["archer2_atm"],
+    "uoe" : ["all"],
 }
 
 

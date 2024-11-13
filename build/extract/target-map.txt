@@ -16,3 +16,5 @@ niwa-xc50:    ifort:    niwa-xc50-intel
 ncas-ex:      gfortran: meto-x86-gcc-ifort
 ncas-ex:      ifort:    ncas-ex-intel
 ncas-ex:      crayftn:  meto-xc40-cce
+uoe-epic:     gfortran: meto-x86-gcc-ifort
+uoe-dial3:    gfortran: meto-x86-gcc-ifort
