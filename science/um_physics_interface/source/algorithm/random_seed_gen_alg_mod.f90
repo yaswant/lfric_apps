@@ -16,25 +16,28 @@ module random_seed_gen_alg_mod
   public random_seed_gen_alg
 
  contains
-  !>@brief Generation of a reproducible random seed for use by stochastic physics.
+  !>@brief Generation of a reproducible random seed for use by ensemble runs.
   !>@details Use full model date in randomising seed to reduce chance of
   !> recycling from one run to the next. The formula calculates the days since
   !> ~2000AD and adds in time suitably inflated to fully change the seed.
   !> Only use last two digits of year to prevent numerical overflow at some date
   !> in the future. A random number generated from this seed is used to
   !> multiply the seed again.
+  !>@param[in] ensemble_number: Allows different ensemble members to have
+  !>                            different random number seeds
 
-  subroutine random_seed_gen_alg()
+  subroutine random_seed_gen_alg(ensemble_number)
     use xios, only: xios_date, xios_get_current_date, &
                     xios_date_get_day_of_year, xios_date_get_second_of_day
     use log_mod, only: log_event, log_scratch_space, LOG_LEVEL_DEBUG
-    use stochastic_physics_config_mod, only: ens_memb
 
     implicit none
 
+    integer(i_def), intent(in) :: ensemble_number
+
     type(xios_date) :: datetime
     integer(i_def) :: year, month, day, utc_shift, hour, minute, &
-                      ensemble_number, milli_ensemble_number
+                      milli_ensemble_number
     integer(i_def) :: random_seed_size, iarg, max_iarg, i
     integer(i_def), allocatable :: iranseed(:), prevseed(:)
     real(r_def), allocatable :: rnum(:)
@@ -50,7 +53,6 @@ module random_seed_gen_alg_mod
     day = int(datetime%day, i_def)
     hour = int(datetime%hour, i_def) + 1
     minute = int(datetime%minute, i_def)
-    ensemble_number = ens_memb
     milli_ensemble_number = ensemble_number + 100
 
     ! Fetch random seed array size from intrinsic and allocate arrays.
@@ -89,7 +91,7 @@ module random_seed_gen_alg_mod
 
     ! Log number of seeds and their values in debug output.
     write( log_scratch_space, &
-           '(": Stochastic Physics: Size of random seed: ", I6)' ) &
+           '(": Random seed generation: Size of random seed: ", I6)' ) &
            random_seed_size
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
     write(string, '("(",A23, I3, "(I5))" )') '"Random Seed Values: ",', random_seed_size

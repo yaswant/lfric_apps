@@ -42,14 +42,10 @@ def do_plot(datapath, plotfield, plotpath='.', plotlevel=0):
         lfric = lfric[-1]
     else:
         lfric = lfric[-1, plotlevel]
-    
-    x_coord_name = 'longitude'
-    y_coord_name = 'latitude'
-    mesh_cube = load_cube_by_varname(datapath, lfric.attributes['mesh'])
-    if mesh_cube.attributes['geometry'] == 'planar':
-       x_coord_name = 'projection_x_coordinate'
-       y_coord_name = 'projection_y_coordinate'
- 
+
+    x_coord_name = 'projection_x_coordinate'
+    y_coord_name = 'projection_y_coordinate'
+
     if plotfield[varname] == 'ls_prec':
        import cf_units
        lfric.units = cf_units.Unit('mm s-1')
@@ -86,7 +82,7 @@ def do_plot(datapath, plotfield, plotpath='.', plotlevel=0):
     plt.colorbar(plot,orientation='vertical')
 
     plt.title(plotfield[varname]+', level = '+str(plotlevel)
-                                +', time = '+str(np.around(t_coord[0], decimals=2))+' hr' 
+                                +', time = '+str(np.around(t_coord[0], decimals=2))+' hr'
                                 +'\n min = '+str(field_min)
                                 +', max = '+str(field_max) )
     plt.xlabel('X (km)')

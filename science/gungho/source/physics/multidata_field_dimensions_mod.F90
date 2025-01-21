@@ -119,7 +119,8 @@ end subroutine sync_multidata_field_dimensions
                                        n_horiz_ang
     use section_choice_config_mod, &
                                  only: radiation, &
-                                       radiation_socrates
+                                       radiation_socrates, &
+                                       radiation_none
 #endif
 
     use log_mod,                 only: log_event, LOG_LEVEL_ERROR,             &
@@ -165,16 +166,22 @@ end subroutine sync_multidata_field_dimensions
             dim = mode_dimen
       case ('sw_bands_aero_modes')
             dim = sw_band_mode
+            if (radiation == radiation_none) dim = 1
       case ('lw_bands_aero_modes')
             dim = lw_band_mode
+            if (radiation == radiation_none) dim = 1
       case ('sw_bands')
             dim = n_sw_band
+            if (radiation == radiation_none) dim = 1
       case ('lw_bands')
             dim = n_lw_band
+            if (radiation == radiation_none) dim = 1
       case ('lw_bands_surface_tiles')
             dim = n_lw_band*n_surf_tile
+            if (radiation == radiation_none) dim = 1
       case ('sw_bands_surface_tiles')
             dim = n_sw_band*n_surf_tile
+            if (radiation == radiation_none) dim = 1
       case ('cloud_subcols')
             dim = n_subcol_gen
       case ('isccp_ctp_tau_bins')
@@ -215,4 +222,3 @@ end subroutine sync_multidata_field_dimensions
   end function get_multidata_field_dimension
 
 end module multidata_field_dimensions_mod
-

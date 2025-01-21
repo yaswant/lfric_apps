@@ -398,12 +398,19 @@ contains
     real(r_def)    :: domain_height
     real(r_def)    :: scaled_radius
 
-    type(namelist_type), pointer :: base_mesh_nml   => null()
-    type(namelist_type), pointer :: formulation_nml => null()
-    type(namelist_type), pointer :: extrusion_nml   => null()
-    type(namelist_type), pointer :: planet_nml      => null()
-    type(namelist_type), pointer :: multigrid_nml   => null()
-    type(namelist_type), pointer :: multires_coupling_nml => null()
+    type(namelist_type), pointer :: base_mesh_nml
+    type(namelist_type), pointer :: formulation_nml
+    type(namelist_type), pointer :: extrusion_nml
+    type(namelist_type), pointer :: planet_nml
+    type(namelist_type), pointer :: multigrid_nml
+    type(namelist_type), pointer :: multires_coupling_nml
+#ifdef UM_PHYSICS
+    type(namelist_type), pointer :: stochastic_physics_nml
+
+    ! Controls how random seed will be set
+    integer(i_def) :: ensemble_number
+#endif
+
 
     integer(i_def), parameter :: one_layer = 1_i_def
 
@@ -417,6 +424,8 @@ contains
     formulation_nml => modeldb%configuration%get_namelist('formulation')
     extrusion_nml   => modeldb%configuration%get_namelist('extrusion')
     planet_nml      => modeldb%configuration%get_namelist('planet')
+    multires_coupling_nml => null()
+    multigrid_nml         => null()
 
     call formulation_nml%get_value( 'l_multigrid', l_multigrid )
     call formulation_nml%get_value( 'use_multires_coupling', &
@@ -428,13 +437,11 @@ contains
                                             multires_coupling_mesh_tags )
       call multires_coupling_nml%get_value( 'orography_mesh_name', &
                                             orography_mesh_name )
-      multires_coupling_nml => null()
     end if
 
     if ( l_multigrid ) then
       multigrid_nml => modeldb%configuration%get_namelist('multigrid')
       call multigrid_nml%get_value( 'chain_mesh_tags', chain_mesh_tags )
-      multigrid_nml => null()
     end if
 
     call base_mesh_nml%get_value( 'prime_mesh_name', prime_mesh_name )
@@ -442,11 +449,6 @@ contains
     call base_mesh_nml%get_value( 'prepartitioned', prepartitioned )
     call extrusion_nml%get_value( 'domain_height', domain_height )
     call planet_nml%get_value( 'scaled_radius', scaled_radius )
-
-    base_mesh_nml   => null()
-    extrusion_nml   => null()
-    formulation_nml => null()
-    planet_nml      => null()
 
     !-------------------------------------------------------------------------
     ! Initialise infrastructure
@@ -803,10 +805,16 @@ contains
       ! Initialisation of UM variables related to the mesh
       call um_domain_init(mesh)
 
-      ! Initialise random seed for stochastic physics
+      ! Random seed controlled by ensemble member number for stochastic physics
       if ( use_spt .or. use_skeb .or. use_random_parameters ) then
-        call random_seed_gen_alg()
+        ! Random seed will depend on ensemble member number
+        stochastic_physics_nml => modeldb%configuration%get_namelist('stochastic_physics')
+        call stochastic_physics_nml%get_value('ens_memb',ensemble_number)
+      else
+        ! Set ensemble number to zero for other users of random numbers
+        ensemble_number = 0
       end if
+      call random_seed_gen_alg(ensemble_number)
 
     end if
 #endif
