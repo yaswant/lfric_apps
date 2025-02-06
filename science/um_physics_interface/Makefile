@@ -82,6 +82,7 @@ unit-tests/%: export PROGRAMS = um_physics_interface_unit_tests
 unit-tests/%: export PROJECT = um_physics_interface
 unit-tests/%: export SOURCE_DIR = source
 unit-tests/%: export TEST_DIR = unit-test
+unit-tests/%: export SCRATCH_DIR = $(WORKING_DIR)/../scratch
 unit-tests/%: export WORKING_DIR := $(WORKING_DIR)/unit-tests
 unit-tests: unit-tests/run
 unit-tests/run: unit-tests/build
