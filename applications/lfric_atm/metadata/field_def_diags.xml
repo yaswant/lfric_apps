@@ -164,6 +164,7 @@
   <field id="chemistry__tio" name="tio" long_name="mass_fraction_of_titanium_oxide_in_air" unit="kg kg-1" operation="once" grid_ref="full_level_face_grid" />
   <field id="chemistry__vo" name="vo" long_name="mass_fraction_of_vanadium_oxide_in_air" unit="kg kg-1" operation="once" grid_ref="full_level_face_grid" />  
   <!-- aerosol diagnostics -->
+  <field id="aerosol__murk" name="murk" long_name="simple_single_species_aerosol_murk" unit="microg kg-1" grid_ref="full_level_face_grid" />
   <field id="aerosol__dust_flux" name="dust_flux" long_name="dust_emissions_flux_in_size_bins" unit="kg m-2 s-1" domain_ref="face" axis_ref="dust_divisions" />
   <field id="aerosol__n_nuc_sol" name="n_nuc_sol" long_name="nucleation_soluble_mode_number" unit="1" grid_ref="full_level_face_grid" />
   <field id="aerosol__nuc_sol_su" name="nuc_sol_su" long_name="nucleation_soluble_mode_h2so4_mmr" unit="kg kg-1" grid_ref="full_level_face_grid" />
@@ -258,12 +259,19 @@
   <field id="cloud__svar_tb" name="svar_tb" long_name="variance_of_unimodal_sd_pdf" unit="kg2 kg-2" grid_ref="full_level_face_grid" />
   <field id="cloud__sigma_mc" name="sigma_mc" long_name="variability_cloud_condensate" unit="1" grid_ref="full_level_face_grid" />
   <field id="cloud__dtheta_pc2_rad" name="dtheta_pc2_rad" long_name="tendency_of_air_potential_temperature_due_to_pc2_response_to_radiative_heating" unit="K" grid_ref="full_level_face_grid" />
+  <field id="cloud__dt_pc2_rad" name="dt_pc2_rad" long_name="tendency_of_air_temperature_due_to_pc2_response_to_radiative_heating" unit="K" grid_ref="full_level_face_grid">cloud__dtheta_pc2_rad * exner_wth_n</field>
   <field id="cloud__dtheta_pc2_checks" name="dtheta_pc2_checks" long_name="tendency_of_air_potential_temperature_due_to_pc2_checks" unit="K" grid_ref="full_level_face_grid" />
+  <field id="cloud__dt_pc2_checks" name="dt_pc2_checks" long_name="tendency_of_air_temperature_due_to_pc2_checks" unit="K" grid_ref="full_level_face_grid">cloud__dtheta_pc2_checks * exner_wth_n</field>
   <field id="cloud__dtheta_pc2_pressure_change" name="dtheta_pc2_pressure_change" long_name="tendency_of_air_potential_temperature_due_to_pc2_pressure_change" unit="K" grid_ref="full_level_face_grid" />
+  <field id="cloud__dt_pc2_pressure_change" name="dt_pc2_pressure_change" long_name="tendency_of_air_temperature_due_to_pc2_pressure_change" unit="K" grid_ref="full_level_face_grid">cloud__dtheta_pc2_pressure_change * exner_in_wth</field>
   <field id="cloud__dtheta_pc2_pressure_change_b4_conv" name="dtheta_pc2_pressure_change_b4_conv" long_name="tendency_of_air_potential_temperature_due_to_pc2_pressure_change_b4_conv" unit="K" grid_ref="full_level_face_grid" />
-  <field id="cloud__dtheta_pc2_conv_coupling" name="dtheta_pc2_conv_coupling" long_name="tendency_of_air_potential_temperature_due_to_pc2_conv_coupling" unit="K" grid_ref="full_level_face_grid" />
+  <field id="cloud__dt_pc2_pressure_change_b4_conv" name="dt_pc2_pressure_change_b4_conv" long_name="tendency_of_air_temperature_due_to_pc2_pressure_change_b4_conv" unit="K" grid_ref="full_level_face_grid">cloud__dtheta_pc2_pressure_change_b4_conv * exner_wth_n</field>
+  <field id="cloud__dtheta_pc2_conv_coupling" name="dtheta_pc2_conv_coupling" long_name="tendency_of_air_potential_temperature_due_to_pc2_conv_coupling" unit="K" grid_ref="full_level_face_grid">cloud__dt_pc2_conv_coupling / exner_wth_n</field>
+  <field id="cloud__dt_pc2_conv_coupling" name="dt_pc2_conv_coupling" long_name="tendency_of_air_temperature_due_to_pc2_conv_coupling" unit="K" grid_ref="full_level_face_grid" />
   <field id="cloud__dtheta_pc2_initiation" name="dtheta_pc2_initiation" long_name="tendency_of_air_potential_temperature_due_to_pc2_initiation" unit="K" grid_ref="full_level_face_grid" />
+  <field id="cloud__dt_pc2_initiation" name="dt_pc2_initiation" long_name="tendency_of_air_temperature_due_to_pc2_initiation" unit="K" grid_ref="full_level_face_grid">cloud__dtheta_pc2_initiation * exner_in_wth</field>
   <field id="cloud__dtheta_pc2_initiation_b4_conv" name="dtheta_pc2_initiation_b4_conv" long_name="tendency_of_air_potential_temperature_due_to_pc2_initiation_b4_conv" unit="K" grid_ref="full_level_face_grid" />
+  <field id="cloud__dt_pc2_initiation_b4_conv" name="dt_pc2_initiation_b4_conv" long_name="tendency_of_air_temperature_due_to_pc2_initiation_b4_conv" unit="K" grid_ref="full_level_face_grid">cloud__dtheta_pc2_initiation_b4_conv * exner_wth_n</field>
   <field id="cloud__dmv_pc2_rad" name="dmv_pc2_rad" long_name="tendency_of_atmosphere_water_vapor_content_due_to_pc2_response_to_radiative_heating" unit="kg kg-1" grid_ref="full_level_face_grid" />
   <field id="cloud__dmv_pc2_checks" name="dmv_pc2_checks" long_name="tendency_of_atmosphere_water_vapor_content_due_to_pc2_checks" unit="kg kg-1" grid_ref="full_level_face_grid" />
   <field id="cloud__dmv_pc2_pressure_change" name="dmv_pc2_pressure_change" long_name="tendency_of_atmosphere_water_vapor_content_due_to_pc2_pressure_change" unit="kg kg-1" grid_ref="full_level_face_grid" />
@@ -517,6 +525,7 @@
   <field id="surface__qcl1p5m" name="qcl1p5m" long_name="specific_cloud_water_at_screen_level" unit="kg kg-1" domain_ref="face" />
   <field id="surface__qcl1p5m_ssi" name="qcl1p5m_ssi" long_name="specific_cloud_water_at_screen_level_over_sea_and_sea_ice" unit="kg kg-1" domain_ref="face" />
   <field id="surface__qcl1p5m_land" name="qcl1p5m_land" long_name="specific_cloud_water_at_screen_level_over_land" unit="kg kg-1" domain_ref="face" />
+  <field id="surface__qt1p5m" name="qt1p5m" long_name="total_specific_water_at_screen_level" unit="kg kg-1" domain_ref="face" >surface__q1p5m+surface__qcl1p5m</field>
   <field id="surface__rh1p5m" name="rh1p5m" long_name="relative_humidity_at_screen_level" unit="1" domain_ref="face" />
   <field id="surface__rh1p5m_ssi" name="rh1p5m_ssi" long_name="relative_humidity_at_screen_level_over_sea_and_sea_ice" unit="1" domain_ref="face" />
   <field id="surface__rh1p5m_land" name="rh1p5m_land" long_name="relative_humidity_at_screen_level_over_land" unit="1" domain_ref="face" />
@@ -616,7 +625,7 @@
   <field id="soil__soil_moist_crit" name="soil_moist_crit" long_name="soil_moisture_at_critical_point" unit="m3 m-3" domain_ref="face" /> 
   <field id="soil__soil_moist_sat" name="soil_moist_sat" long_name="soil_moisture_at_saturation" unit="m3 m-3" domain_ref="face" />
   <!-- Boundary layer turbulence diagnostics -->
-  <field id="turbulence__dtheta_bl" name="dtheta_bl" long_name="potential_temperature_increment_from_bl_scheme" unit="K" grid_ref="full_level_face_grid" />
+  <field id="turbulence__dtheta_blcnv" name="dtheta_blcnv" long_name="potential_temperature_increment_from_bl_and_convection_schemes" unit="K" grid_ref="full_level_face_grid" />
   <field id="turbulence__dt_bl" name="dt_bl" long_name="temperature_increment_from_bl_scheme" unit="K" grid_ref="full_level_face_grid" />
   <field id="turbulence__dmv_bl" name="dmv_bl" long_name="vapour_increment_from_bl_scheme" unit="kg kg-1" grid_ref="full_level_face_grid" />
   <field id="turbulence__dmcl_bl" name="dmcl_bl" long_name="liquid_water_increment_from_bl_scheme" unit="kg kg-1" grid_ref="full_level_face_grid" />
@@ -845,6 +854,7 @@
   <field id="stochastic__dv_tot_skeb" name="dv_tot_skeb" long_name="northward_wind_increment_from_total_skeb" unit="m s-1" grid_ref="half_level_face_grid" />  
   <!-- advection diagnostics -->
   <field id="advection__dtheta_adv" name="dtheta_adv" long_name="potential_temperature_increment_from_advection" unit="K" grid_ref="full_level_face_grid" />
+  <field id="advection__dt_adv" name="dt_adv" long_name="temperature_increment_from_advection" unit="K" grid_ref="full_level_face_grid">advection__dtheta_adv * exner_wth_n</field>
   <field id="advection__du_adv" name="du_adv" long_name="eastward_wind_increment_from_advection" unit="m s-1" grid_ref="half_level_face_grid" />
   <field id="advection__dv_adv" name="dv_adv" long_name="northward_wind_increment_from_advection" unit="m s-1" grid_ref="half_level_face_grid" />
   <field id="advection__dw_adv" name="dw_adv" long_name="vertical_air_velocity_increment_from_advection" unit="m s-1" grid_ref="half_level_face_grid" />
@@ -857,6 +867,7 @@
   <field id="advection__dcff_adv" name="dcff_adv" long_name="frozen_cloud_fraction_increment_from_advection" unit="1" grid_ref="full_level_face_grid" />
   <!-- solver diagnostics -->
   <field id="solver__dtheta_solv" name="dtheta_solv" long_name="potential_temperature_increment_from_solver" unit="K" grid_ref="full_level_face_grid" />
+  <field id="solver__dt_solv" name="dt_solv" long_name="temperature_increment_from_solver" unit="K" grid_ref="full_level_face_grid" />
   <field id="solver__du_solv" name="du_solv" long_name="eastward_wind_increment_from_solver" unit="m s-1" grid_ref="half_level_face_grid" />
   <field id="solver__dv_solv" name="dv_solv" long_name="northward_wind_increment_from_solver" unit="m s-1" grid_ref="half_level_face_grid" />
   <field id="solver__dw_solv" name="dw_solv" long_name="vertical_air_velocity_increment_from_solver" unit="m s-1" grid_ref="half_level_face_grid" />
@@ -869,11 +880,15 @@
   <!-- Processed diagnostics -->
   <field id="processed__dtheta_slow" name="dtheta_slow" long_name="potential_temperature_increment_from_slow_physics" unit="K" grid_ref="full_level_face_grid" />
   <field id="processed__dtheta_tot" name="dtheta_tot" long_name="total_potential_temperature_increment" unit="K" grid_ref="full_level_face_grid" />
+  <field id="processed__dt_tot" name="dt_tot" long_name="total_temperature_increment" unit="K" grid_ref="full_level_face_grid" />
   <field id="processed__dmv_methox" name="dmv_methox" long_name="vapour_increment_from_methane_oxidation" unit="kg/kg" grid_ref="full_level_face_grid" />
   <field id="processed__dmv_tot" name="dmv_tot" long_name="total_vapour_increment" unit="kg kg-1" grid_ref="full_level_face_grid" />
   <field id="processed__dmcl_tot" name="dmcl_tot" long_name="total_liquid_water_increment" unit="kg kg-1" grid_ref="full_level_face_grid" />
   <field id="processed__dms_tot" name="dms_tot" long_name="total_snow_water_increment" unit="kg kg-1" grid_ref="full_level_face_grid" />
   <field id="processed__dmci_tot" name="dmci_tot" long_name="total_ice_water_increment" unit="kg kg-1" grid_ref="full_level_face_grid" />
+  <field id="processed__dbcf_tot" name="dbcf_tot" long_name="total_bulk_cloud_fraction_increment" unit="1" grid_ref="full_level_face_grid" />
+  <field id="processed__dcfl_tot" name="dcfl_tot" long_name="total_liquid_cloud_fraction_increment" unit="1" grid_ref="full_level_face_grid" />
+  <field id="processed__dcff_tot" name="dcff_tot" long_name="total_frozen_cloud_fraction_increment" unit="1" grid_ref="full_level_face_grid" />
   <field id="processed__du_tot" name="du_tot" long_name="total_eastward_wind_increment" unit="m s-1" grid_ref="half_level_face_grid" />
   <field id="processed__dv_tot" name="dv_tot" long_name="total_northward_wind_increment" unit="m s-1" grid_ref="half_level_face_grid" />
   <field id="processed__dw_tot" name="dw_tot" long_name="total_vertical_air_velocity_increment" unit="m s-1" grid_ref="half_level_face_grid" />
@@ -905,6 +920,7 @@
   <field id="processed__qtotal" name="qtotal" long_name="specific_total_water" unit="kg kg-1" grid_ref="full_level_face_grid"> processed__qv + processed__qcl + processed__qci </field>
   <field id="processed__rh_water" name="rh_water" long_name="relative_humidity_over_water" standard_name="relative_humidity" unit="%" grid_ref="full_level_face_grid" />
   <field id="processed__rh_ice" name="rh_ice" long_name="relative_humidity_over_ice_below_freezing" standard_name="relative_humidity" unit="%" grid_ref="full_level_face_grid" />
+  <field id="processed__freeze_lev" name="freeze_lev" long_name="wet_bulb_freezing_level" unit="m" domain_ref="face" />
   <field id="processed__wbig" name="wbig" long_name="wbig_eq_1_where_wphysics_gt_1" unit="1" grid_ref="full_level_face_grid" />
   <field id="processed__pressure_in_w3" name="pressure_in_w3" long_name="pressure_at_cell_centres" standard_name="air_pressure" unit="Pa" grid_ref="half_level_face_grid" />
   <field id="processed__pressure_in_wth" name="pressure_in_wth" long_name="pressure_at_cell_interfaces" standard_name="air_pressure" unit="Pa" grid_ref="full_level_face_grid" />
@@ -928,6 +944,7 @@
   <field id="plev__heaviside" name="heaviside_func" long_name="heaviside_function_at_pressure_levels" unit="1" domain_ref="face" axis_ref="pressure_levels"/>
   <field id="plev__temp" name="plev_temp" long_name="temperature_at_pressure_levels" unit="K" domain_ref="face" axis_ref="pressure_levels"/>
   <field id="plev__temp_clim" name="plev_temp_clim" long_name="temperature_at_pressure_levels_for_climate_averaging" unit="K" domain_ref="face" axis_ref="pressure_levels"/>
+  <field id="plev__thetaw" name="plev_thetaw" long_name="wet_bulb_potential_temperature_at_pressure_levels" unit="K" domain_ref="face" axis_ref="pressure_levels"/>
   <field id="plev__u" name="plev_u" long_name="zonal_wind_at_pressure_levels" unit="m s-1" domain_ref="face" axis_ref="pressure_levels"/>
   <field id="plev__u_clim" name="plev_u_clim" long_name="zonal_wind_at_pressure_levels_for_climate_averaging" unit="m s-1" domain_ref="face" axis_ref="pressure_levels"/>
   <field id="plev__v" name="plev_v" long_name="meridional_wind_at_pressure_levels" unit="m s-1" domain_ref="face" axis_ref="pressure_levels"/>
@@ -943,6 +960,7 @@
   <field id="plev__rh_ice_clim" name="plev_rh_ice_clim" long_name="relative_humidity_wrt_ice_at_pressure_levels_for_climate_averaging" unit="m s-1" domain_ref="face" axis_ref="pressure_levels"/>
   <field id="plev__rh_water" name="plev_rh_water" long_name="relative_humidity_wrt_water_at_pressure_levels" unit="m s-1" domain_ref="face" axis_ref="pressure_levels"/>
   <field id="plev__xi3" name="plev_xi3" long_name="vertical_vorticity_at_pressure_levels" unit="s-1" domain_ref="face" axis_ref="pressure_levels_xi3"/>
+  <field id="plev__pv" name="plev_pv" long_name="potential_vorticity_at_pressure_levels" unit="m2 s-1 K kg-1" domain_ref="face" axis_ref="pressure_levels"/>
   <field id="plev__uu_clim" name="plev_uu_clim" standard_name="square_of_eastward_wind" unit="m2 s-2" domain_ref="face" axis_ref="pressure_levels"> plev__u_clim * plev__u_clim </field>
   <field id="plev__uv_clim" name="plev_uv_clim" standard_name="product_of_eastward_wind_and_northward_wind" unit="m2 s-2" domain_ref="face" axis_ref="pressure_levels"> plev__u_clim * plev__v_clim </field>
   <field id="plev__uom_clim" name="plev_uom_clim" standard_name="product_of_eastward_wind_and_lagrangian_tendency_of_air_pressure" unit="Pa m s-2" domain_ref="face" axis_ref="pressure_levels"> plev__u_clim * plev__omega_clim </field>

@@ -51,8 +51,7 @@ contains
 
   subroutine output_diags_for_si(state, state_n, state_after_slow, mr, mr_n,   &
                                  mr_after_slow, mr_after_adv, derived_fields,  &
-                                 du_fast, dtheta_fast, cloud_fields_after_slow,&
-                                 cloud_fields_after_adv)
+                                 du_fast, dtheta_fast, dtheta_cld)
 
     implicit none
 
@@ -61,27 +60,23 @@ contains
     type(field_type), dimension(nummr), intent(in) :: mr, mr_n, mr_after_slow, &
                                                       mr_after_adv
 
-    type(field_type), intent(in) :: du_fast, dtheta_fast
+    type(field_type), intent(in) :: du_fast, dtheta_fast, dtheta_cld
 
-    type(field_collection_type), intent(in) :: derived_fields, &
-                                               cloud_fields_after_slow, &
-                                               cloud_fields_after_adv
+    type(field_collection_type), intent(in) :: derived_fields
 
     type(field_type) :: dtheta_tot, du_w2_tot, du_tot, dv_tot, dw_tot,        &
+                        dt_solv, t_tmp, dt_tot,                               &
                         dmv_tot, dmcl_tot, dmci_tot, dtheta_adv, dtheta_slow, &
                         du_w2_adv, du_adv, dv_adv, dw_adv, dmv_adv,           &
-                        dmcl_adv, dmci_adv, dbcf_adv, dcfl_adv, dcff_adv,     &
+                        dmcl_adv, dmci_adv,                                   &
                         dtheta_solv, du_w2_solv, du_solv, dv_solv, dw_solv,   &
                         dms_tot, dms_adv
 
-    type(field_type), pointer :: u_star => null()
-    type(field_type), pointer :: theta_star => null()
-    type(field_type), pointer :: bcf_after_slow => null()
-    type(field_type), pointer :: bcf_after_adv => null()
-    type(field_type), pointer :: cfl_after_slow => null()
-    type(field_type), pointer :: cfl_after_adv => null()
-    type(field_type), pointer :: cff_after_slow => null()
-    type(field_type), pointer :: cff_after_adv => null()
+    type(field_type), pointer :: u_star
+    type(field_type), pointer :: theta_star
+    type(field_type), pointer :: exner_in_wth
+    type(field_type), pointer :: exner_wth_n
+
     logical(l_def) :: ignore
 
     if ( subroutine_timers ) call timer ("si_diagnostics")
@@ -98,6 +93,16 @@ contains
     if (init_diag(dtheta_tot, 'processed__dtheta_tot')) then
       call invoke(X_minus_Y(dtheta_tot,state(igh_t),state_n(igh_t)))
       call dtheta_tot%write_field('processed__dtheta_tot')
+    end if
+
+    if (init_diag(dt_tot, 'processed__dt_tot')) then
+      call derived_fields%get_field('exner_in_wth', exner_in_wth)
+      call derived_fields%get_field('exner_wth_n', exner_wth_n)
+      call dt_tot%copy_field_properties(t_tmp)
+      call invoke(X_times_Y(dt_tot, state(igh_t), exner_in_wth), &
+                  X_times_Y(t_tmp, state_n(igh_t), exner_wth_n), &
+                  inc_X_minus_Y(dt_tot, t_tmp) )
+      call dt_tot%write_field('processed__dt_tot')
     end if
 
     du_tot_flag = init_diag(du_tot, 'processed__du_tot')
@@ -191,36 +196,27 @@ contains
         end if
       end if
 
-      if (cloud_fields_after_slow%get_length() > 0) then
-        if (init_diag(dbcf_adv, 'advection__dbcf_adv')) then
-          call cloud_fields_after_slow%get_field('bulk_fraction', bcf_after_slow)
-          call cloud_fields_after_adv%get_field('bulk_fraction', bcf_after_adv)
-          call invoke(X_minus_Y(dbcf_adv,bcf_after_adv,bcf_after_slow))
-          call dbcf_adv%write_field()
-        end if
-
-        if (init_diag(dcfl_adv, 'advection__dcfl_adv')) then
-          call cloud_fields_after_slow%get_field('liquid_fraction', cfl_after_slow)
-          call cloud_fields_after_adv%get_field('liquid_fraction', cfl_after_adv)
-          call invoke(X_minus_Y(dcfl_adv,cfl_after_adv,cfl_after_slow))
-          call dcfl_adv%write_field()
-        end if
-
-        if (init_diag(dcff_adv, 'advection__dcff_adv')) then
-          call cloud_fields_after_slow%get_field('frozen_fraction', cff_after_slow)
-          call cloud_fields_after_adv%get_field('frozen_fraction', cff_after_adv )
-          call invoke(X_minus_Y(dcff_adv,cff_after_adv,cff_after_slow))
-          call dcff_adv%write_field()
-        end if
-      end if
-
       ! Solver increments
-      ! Difference between current value (X) and X_star+dX_fast_physics
+      ! Difference between solver value (X-dX_cld) and X_star+dX_fast_physics
       if (init_diag(dtheta_solv, 'solver__dtheta_solv')) then
         call derived_fields%get_field('theta_star', theta_star)
         call invoke(X_minus_Y(dtheta_solv,state(igh_t),theta_star), &
-                inc_X_minus_Y(dtheta_solv,dtheta_fast))
+                inc_X_minus_Y(dtheta_solv,dtheta_fast), &
+                inc_X_minus_Y(dtheta_solv,dtheta_cld))
         call dtheta_solv%write_field()
+      end if
+
+      if (init_diag(dt_solv, 'solver__dt_solv')) then
+        call derived_fields%get_field('theta_star', theta_star)
+        call derived_fields%get_field('exner_in_wth', exner_in_wth)
+        call derived_fields%get_field('exner_wth_n', exner_wth_n)
+        call dt_solv%copy_field_properties(t_tmp)
+        call invoke(X_minus_Y(dt_solv, state(igh_t), dtheta_cld),   &
+                    inc_X_times_Y(dt_solv, exner_in_wth),           &
+                    X_plus_Y(t_tmp, theta_star, dtheta_fast),       &
+                    inc_X_times_Y(t_tmp, exner_wth_n),              &
+                    inc_X_minus_Y(dt_solv, t_tmp) )
+        call dt_solv%write_field('solver__dt_solv')
       end if
 
       du_solv_flag = init_diag(du_solv, 'solver__du_solv')

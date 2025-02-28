@@ -149,7 +149,7 @@ end subroutine write_hydbal_diagnostic
 
 subroutine write_vorticity_diagnostic(u_field, exner, clock)
 #ifdef UM_PHYSICS
-  use pres_lev_diags_alg_mod, only: pres_lev_xi3_alg
+  use pres_lev_diags_alg_mod, only: pres_lev_field_alg
 #endif
   implicit none
 
@@ -170,6 +170,7 @@ subroutine write_vorticity_diagnostic(u_field, exner, clock)
   character(len=str_max_filename) :: field_name_new
 
   logical(l_def) :: xi_modlev_flag, plev_xi3_flag
+  logical(l_def), parameter :: xi3_axis = .true.
 
   xi_modlev_flag = diagnostic_to_be_sampled('xi1') .or. &
                    diagnostic_to_be_sampled('xi2') .or. &
@@ -201,7 +202,7 @@ subroutine write_vorticity_diagnostic(u_field, exner, clock)
 
 #ifdef UM_PHYSICS
       if (plev_xi3_flag) then
-        call pres_lev_xi3_alg(projected_field, exner, plev_xi3)
+        call pres_lev_field_alg(projected_field(3), exner, plev_xi3, xi3_axis)
       end if
 #endif
 
@@ -240,18 +241,65 @@ subroutine write_vorticity_diagnostic(u_field, exner, clock)
 
 end subroutine write_vorticity_diagnostic
 
+#ifdef UM_PHYSICS
 !-------------------------------------------------------------------------------
-!>  @brief    Handles potential vorticity diagnostic processing
-!!
-!!  @details  Handles potential vorticity diagnostic processing
-!!
-!!> @param[in] u_field   The wind field
-!!> @param[in] theta     The potential temperature field
-!!> @param[in] rho       The density field
-!!> @param[in] timestep  Model timestep to index the output file
+!> @brief     Potential vorticity diagnostic processing and output.
+!> @details   Optionally calculate and output both model level and pressure
+!>            level diagnostics.
+!> @param[in] u_field   The wind field
+!> @param[in] theta     The potential temperature field (K)
+!> @param[in] rho       The density field (kg/m3)
+!> @param[in] exner     The exner pressure (Pa)
+!> @param[in] clock     The model clock object
 !-------------------------------------------------------------------------------
+subroutine write_pv_diagnostic(u_field, theta, rho, exner, clock)
 
+  use pres_lev_diags_alg_mod, only: pres_lev_field_alg
+
+  implicit none
+
+  type(field_type),        intent(in) :: u_field
+  type(field_type),        intent(in) :: theta
+  type(field_type),        intent(in) :: rho
+  type(field_type),        intent(in) :: exner
+  class(model_clock_type), intent(in) :: clock
+
+  type(field_type) :: pv
+  type(field_type) :: plev_pv
+  logical(l_def) :: pv_modlev_flag, plev_pv_flag
+  logical(l_def), parameter :: xi3_axis = .false.
+  logical(l_def), parameter :: add_W3_version = .false.
+
+  pv_modlev_flag = diagnostic_to_be_sampled('potential_vorticity') .or. &
+                   diagnostic_to_be_sampled('init_potential_vorticity')
+
+  plev_pv_flag = init_diag(plev_pv, 'plev__pv')
+
+  if (pv_modlev_flag .or. plev_pv_flag) then
+
+    call potential_vorticity_diagnostic_alg(pv, u_field, theta, rho)
+
+    if (plev_pv_flag) call pres_lev_field_alg(pv, exner, plev_pv, xi3_axis)
+
+    if (pv_modlev_flag) then
+      call write_scalar_diagnostic('potential_vorticity', pv, clock, &
+                                    pv%get_mesh(), add_W3_version)
+    end if
+
+  end if
+
+end subroutine write_pv_diagnostic
+#else
+!-------------------------------------------------------------------------------
+!> @brief     Potential vorticity diagnostic processing and output.
+!> @details   Optionally calculate and output model level diagnostic.
+!> @param[in] u_field   The wind field
+!> @param[in] theta     The potential temperature field (K)
+!> @param[in] rho       The density field (kg/m3)
+!> @param[in] clock     The model clock object
+!-------------------------------------------------------------------------------
 subroutine write_pv_diagnostic(u_field, theta, rho, clock)
+
   implicit none
 
   type(field_type),        intent(in) :: u_field
@@ -260,17 +308,21 @@ subroutine write_pv_diagnostic(u_field, theta, rho, clock)
   class(model_clock_type), intent(in) :: clock
 
   type(field_type) :: pv
+  logical(l_def) :: pv_modlev_flag
+  logical(l_def), parameter :: add_W3_version = .false.
 
-  if (diagnostic_to_be_sampled('potential_vorticity') .or. &
-      diagnostic_to_be_sampled('init_potential_vorticity') ) then
+  pv_modlev_flag = diagnostic_to_be_sampled('potential_vorticity') .or. &
+                   diagnostic_to_be_sampled('init_potential_vorticity')
+
+  if (pv_modlev_flag) then
 
     call potential_vorticity_diagnostic_alg(pv, u_field, theta, rho)
 
     call write_scalar_diagnostic('potential_vorticity', pv, clock, &
-                                 pv%get_mesh(), .false.)
+                                  pv%get_mesh(), add_W3_version)
 
   end if
 
 end subroutine write_pv_diagnostic
-
+#endif
 end module diagnostics_calc_mod

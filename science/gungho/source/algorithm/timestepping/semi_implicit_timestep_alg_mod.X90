@@ -8,13 +8,14 @@
 !!        3D equations.
 module semi_implicit_timestep_alg_mod
 
-  use constants_mod,             only: i_def, r_def, l_def, r_tran
+  use constants_mod,             only: i_def, r_def, l_def, str_def, &
+                                       r_tran
   use fs_continuity_mod,         only: Wtheta, W2
   use log_mod,                   only: log_event,         &
                                        log_scratch_space, &
                                        LOG_LEVEL_INFO
   use extrusion_mod,             only: TWOD
-  use sci_fem_constants_mod,     only: get_mass_matrix,       &
+  use sci_fem_constants_mod,     only: get_mass_matrix,   &
                                        get_qr
   use sci_field_bundle_builtins_mod,                      &
                                  only: clone_bundle,      &
@@ -143,6 +144,7 @@ module semi_implicit_timestep_alg_mod
   use aerosol_ukca_alg_mod,       only: aerosol_ukca_alg
   use casim_activate_alg_mod,     only: casim_activate_alg
 #endif
+  use cld_incs_mod,               only: cld_incs_init, cld_incs_output
 
   use timer_mod,                  only: timer
   use ageofair_alg_mod,           only: ageofair_update
@@ -155,6 +157,7 @@ module semi_implicit_timestep_alg_mod
   type, extends(timestep_method_type), public :: semi_implicit_timestep_type
     private
     logical(kind=l_def) :: use_moisture
+    logical(kind=l_def) :: output_cld_incs
     ! holds the latest estimate of the prognostic fields through the timestep
     type(field_type), allocatable :: state(:)
     ! prognostic fields at the start of timestep
@@ -436,6 +439,8 @@ contains
     allocate(self%mr_after_adv(nummr))
 
     self%use_moisture = ( moisture_formulation /= moisture_formulation_dry )
+    self%output_cld_incs = ( self%use_moisture .and. write_diag .and. &
+                             use_xios_io )
 
     !--------------------------------------------------------------------
     ! Initialise internal state field objects
@@ -458,6 +463,7 @@ contains
 
     call theta%copy_field_properties(self%dtheta)
     call theta%copy_field_properties(self%dtheta_cld)
+    call invoke(setval_c(self%dtheta_cld, 0.0_r_def))
     call theta%copy_field_properties(self%theta_fv_inc)
     call u%copy_field_properties(self%du)
     call u%copy_field_properties(self%wind_prev)
@@ -631,6 +637,13 @@ contains
     ! Moisture field to transport
     type( field_type ),       pointer :: mr_to_adv(:)
 
+    type( field_type ) :: dcfl_tot, dcff_tot, dbcf_tot, &
+                          dcfl_adv, dcff_adv, dbcf_adv
+    character(str_def), parameter :: sec_tot='processed'
+    character(str_def), parameter :: suffix_tot='tot'
+    character(str_def), parameter :: sec_adv='advection'
+    character(str_def), parameter :: suffix_adv='adv'
+
     real(kind=r_def) :: cast_dt
 
     type(field_type), pointer :: ageofair
@@ -654,8 +667,6 @@ contains
     type( field_collection_type ) :: adv_tracer_last_outer_after_slow
     type( field_collection_type ) :: con_tracer_all_outer_after_slow
     type( field_collection_type ) :: con_tracer_last_outer_after_slow
-    ! Cloud fields after advection / before fast physics updates
-    type( field_collection_type ) :: cloud_fields_after_adv
 
     ! Reference fields are checkpointed
     logical(kind=l_def) :: checkpoint_reference_fields
@@ -736,8 +747,12 @@ contains
     ! Compute slow physic updates
     !--------------------------------------------------------------------
     if (use_physics) then
-      call slow_physics( modeldb,                                             &
-                         self%du, self%dtheta, self%mr_after_slow,            &
+      if (self%output_cld_incs) then
+        call cld_incs_init(cloud_fields, dcfl_tot, dcff_tot, dbcf_tot, &
+                           sec_tot, suffix_tot)
+      end if
+
+      call slow_physics( modeldb, self%du, self%dtheta, self%mr_after_slow,   &
                          self%visc_m, self%visc_h,                            &
                          self%state_n(igh_t), self%state_n(igh_u),            &
                          self%state_n(igh_d), self%state_n(igh_p), moist_dyn, &
@@ -747,12 +762,17 @@ contains
                          turbulence_fields, convection_fields, cloud_fields,  &
                          surface_fields, soil_fields, snow_fields,            &
                          chemistry_fields, aerosol_fields, model_clock,       &
-                         cast_dt, dtemp_encorr,                               &
-                         mesh, twod_mesh )
-      call invoke(name="update_from_slow_physics",                             &
-                  inc_X_plus_Y(self%state_after_slow(igh_t), self%dtheta),     &
-                  inc_X_plus_Y(self%state_after_slow(igh_u), self%du)          &
+                         cast_dt, dtemp_encorr, mesh, twod_mesh )
+
+      call invoke(name="update_from_slow_physics",                            &
+                  inc_X_plus_Y(self%state_after_slow(igh_t), self%dtheta),    &
+                  inc_X_plus_Y(self%state_after_slow(igh_u), self%du)         &
                   )
+
+      if (self%output_cld_incs) then
+        call cld_incs_init(cloud_fields, dcfl_adv, dcff_adv, dbcf_adv, &
+                           sec_adv, suffix_adv)
+      end if
     end if !use_physics
 
     !--------------------------------------------------------------------
@@ -857,11 +877,11 @@ contains
                                          self%rhs_n, self%state, self%state_after_slow, &
                                          lbc_fields, model_clock )
         end if
-        ! cloud fields are stored in the advective tracers
-        call conditional_collection_copy(cloud_fields_after_adv,               &
-                  generic_fields_to_copy=cloud_fields,                         &
-                  field_list=adv_tracer_all_outer)
 
+        if (outer == outer_iterations .and. self%output_cld_incs) then
+          call cld_incs_output(cloud_fields, dcfl_adv, dcff_adv, dbcf_adv, &
+                               sec_adv, suffix_adv)
+        end if
         !--------------------------------------------------------------------
         ! Call the fast physics terms
         !--------------------------------------------------------------------
@@ -1078,13 +1098,16 @@ contains
 #endif
 
     ! Write diagnostic output
+    if (use_physics .and. self%output_cld_incs) then
+      call cld_incs_output(cloud_fields, dcfl_tot, dcff_tot, dbcf_tot, &
+                           sec_tot, suffix_tot)
+    end if
     if (write_diag .and. use_xios_io .and. &
          mod(model_clock%get_step(),diagnostic_frequency) == 0 ) then
-      call output_diags_for_si(self%state, self%state_n, self%state_after_slow, &
-                               mr, self%mr_n, self%mr_after_slow,               &
-                               self%mr_after_adv, derived_fields,               &
-                               self%du, self%dtheta, adv_tracer_all_outer,      &
-                               cloud_fields_after_adv)
+      call output_diags_for_si(self%state, self%state_n, self%state_after_slow,&
+                               mr, self%mr_n, self%mr_after_slow,              &
+                               self%mr_after_adv, derived_fields,              &
+                               self%du, self%dtheta, self%dtheta_cld)
     end if
 
     !--------------------------------------------------------------------

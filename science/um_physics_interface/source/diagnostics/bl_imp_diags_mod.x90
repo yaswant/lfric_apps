@@ -556,7 +556,9 @@ contains
     if ( subroutine_timers ) call timer("bl_imp_diags")
 
     ! Output prognostic fields
-    call dtheta_bl%write_field('turbulence__dtheta_bl')
+    call murk%write_field('aerosol__murk')
+
+    call dtheta_bl%write_field('turbulence__dtheta_blcnv')
     call zh%write_field('turbulence__zh')
     du_bl_flag = init_diag(du_bl, 'turbulence__du_bl')
     dv_bl_flag = init_diag(dv_bl, 'turbulence__dv_bl')

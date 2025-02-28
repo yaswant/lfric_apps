@@ -56,6 +56,7 @@ module gungho_diagnostics_driver_mod
   use pres_lev_diags_alg_mod,    only : pres_lev_diags_alg
   use pmsl_alg_mod,              only : pmsl_alg
   use rh_diag_alg_mod,           only : rh_diag_alg
+  use freeze_lev_alg_mod,        only : freeze_lev_alg
 #endif
 
   implicit none
@@ -210,7 +211,11 @@ contains
                                    modeldb%clock, mesh, nodal_output_on_w3)
     end if
     call write_vorticity_diagnostic( u, exner, modeldb%clock )
+#ifdef UM_PHYSICS
+    call write_pv_diagnostic( u, theta, rho, exner, modeldb%clock )
+#else
     call write_pv_diagnostic( u, theta, rho, modeldb%clock )
+#endif
 
     ! Moisture fields
     if ( moisture_formulation /= moisture_formulation_dry ) then
@@ -296,6 +301,8 @@ contains
       call pmsl_alg(exner, derived_fields, theta, twod_mesh)
       ! Pressure level diagnostics
       call pres_lev_diags_alg(derived_fields, theta, exner, mr, moist_dyn)
+      ! Wet bulb freezing level
+      call freeze_lev_alg(theta, mr, moist_dyn, exner_in_wth)
 #endif
 
       temp_corr_io_value => get_io_value( modeldb%values, 'temperature_correction_io_value')

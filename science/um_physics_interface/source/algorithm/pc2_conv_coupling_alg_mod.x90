@@ -137,7 +137,7 @@ contains
 
     if ( write_diag .and. use_xios_io ) then
       if ( subroutine_timers ) call timer("pc2_conv_coupling_xios")
-      call dt_conv%write_field('cloud__dtheta_pc2_conv_coupling')
+      call dt_conv%write_field('cloud__dt_pc2_conv_coupling')
       call dmv_conv%write_field('cloud__dmv_pc2_conv_coupling')
       call dmcl_conv%write_field('cloud__dmcl_pc2_conv_coupling')
       call dms_conv%write_field('cloud__dms_pc2_conv_coupling')

@@ -1048,5 +1048,74 @@ z0h_eff_proxy%data, ocn_cpl_point_proxy%data, ndf_wtheta, &
       !
       !
     END SUBROUTINE invoke_geo_on_pres_kernel_type
-
+  !---------------------------------------------------------------------
+  !> Contains the PSy-layer to build the pressure level diagnostics
+  !> These require passing an array "plevs" into each kernel
+  !> which is currently unsupported by PSyclone
+  !> see https://github.com/stfc/PSyclone/issues/1312
+  !> Hence this module could be removed once the PSyclone ticket is
+  !> completed
+    SUBROUTINE invoke_thetaw_kernel_type(plev_thetaw, plev_temp, plev_qv, nplev, plevs)
+      USE thetaw_kernel_mod, ONLY: thetaw_code
+      USE mesh_mod, ONLY: mesh_type
+      INTEGER(KIND=i_def), intent(in) :: nplev
+      TYPE(field_type), intent(in) :: plev_temp, plev_qv, plev_thetaw
+      REAL(KIND=r_def), intent(in) :: plevs(nplev)
+      INTEGER(KIND=i_def) cell
+      INTEGER(KIND=i_def) loop0_start, loop0_stop
+      INTEGER(KIND=i_def) nlayers_plev_thetaw
+      REAL(KIND=r_def), pointer, dimension(:) :: plev_thetaw_data => null()
+      REAL(KIND=r_def), pointer, dimension(:) :: plev_qv_data => null()
+      REAL(KIND=r_def), pointer, dimension(:) :: plev_temp_data => null()
+      TYPE(field_proxy_type) plev_qv_proxy, plev_thetaw_proxy, plev_temp_proxy
+      INTEGER(KIND=i_def), pointer :: map_adspc1_plev_thetaw(:,:) => null()
+      INTEGER(KIND=i_def) ndf_adspc1_plev_thetaw, undf_adspc1_plev_thetaw
+      INTEGER(KIND=i_def) max_halo_depth_mesh
+      TYPE(mesh_type), pointer :: mesh => null()
+      !
+      ! Initialise field and/or operator proxies
+      !
+      plev_qv_proxy = plev_qv%get_proxy()
+      plev_qv_data => plev_qv_proxy%data
+      plev_temp_proxy = plev_temp%get_proxy()
+      plev_temp_data => plev_temp_proxy%data
+      plev_thetaw_proxy = plev_thetaw%get_proxy()
+      plev_thetaw_data => plev_thetaw_proxy%data
+      !
+      ! Initialise number of layers
+      !
+      nlayers_plev_thetaw = plev_thetaw_proxy%vspace%get_nlayers()
+      !
+      ! Create a mesh object
+      !
+      mesh => plev_thetaw_proxy%vspace%get_mesh()
+      max_halo_depth_mesh = mesh%get_halo_depth()
+      !
+      ! Look-up dofmaps for each function space
+      !
+      map_adspc1_plev_thetaw => plev_thetaw_proxy%vspace%get_whole_dofmap()
+      !
+      ! Initialise number of DoFs for adspc1_plev_thetaw
+      !
+      ndf_adspc1_plev_thetaw = plev_thetaw_proxy%vspace%get_ndf()
+      undf_adspc1_plev_thetaw = plev_thetaw_proxy%vspace%get_undf()
+      !
+      ! Set-up all of the loop bounds
+      !
+      loop0_start = 1
+      loop0_stop = mesh%get_last_edge_cell()
+      !
+      ! Call kernels and communication routines
+      !
+      DO cell = loop0_start, loop0_stop, 1
+        CALL thetaw_code(nlayers_plev_thetaw, plev_thetaw_data, plev_temp_data, plev_qv_data, nplev, plevs, ndf_adspc1_plev_thetaw, &
+&undf_adspc1_plev_thetaw, map_adspc1_plev_thetaw(:,cell))
+      END DO
+      !
+      ! Set halos dirty/clean for fields modified in the above loop
+      !
+      CALL plev_thetaw_proxy%set_dirty()
+      !
+      !
+    END SUBROUTINE invoke_thetaw_kernel_type
 end module psykal_lite_phys_mod
