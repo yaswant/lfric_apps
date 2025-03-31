@@ -151,8 +151,7 @@ module coupler_update_prognostics_mod
         call log_field_minmax( LOG_LEVEL_DEBUG, &
                                'Ocean surface U from coupler', fld )
         call depository%get_field('sea_u_current', fld_ptr1)
-        call invoke( multi_insert_kernel_type(fld_ptr1, fld, &
-                                first_sea_tile, n_sea_tile ) )
+        call invoke(setval_x(fld_ptr1, fld))
         ! Move coupling U component to 1st level of 3d field
         call depository%get_field('sea_u_3d',u_3d_ptr)
         call invoke(setval_c( u_3d_ptr, 0.0_r_def ))
@@ -161,8 +160,7 @@ module coupler_update_prognostics_mod
         call log_field_minmax( LOG_LEVEL_DEBUG, &
                                'Ocean surface v from coupler', fld )
         call depository%get_field('sea_v_current', fld_ptr1)
-        call invoke( multi_insert_kernel_type(fld_ptr1, fld, &
-                                first_sea_tile, n_sea_tile ) )
+        call invoke(setval_x(fld_ptr1, fld))
         ! Move coupling V component to 1st level of 3d field
         call depository%get_field('sea_v_3d',v_3d_ptr)
         call invoke(setval_c( v_3d_ptr, 0.0_r_def ))
