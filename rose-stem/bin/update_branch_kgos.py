@@ -18,8 +18,13 @@ PLATFORMS = {
         "spice": {"copy_command": "cp "},
         "azspice": {"copy_command": "cp "},
         "xc40": {"copy_command": "scp xcel00:"},
-        "ex1a": {"copy_command": "scp login.exa.sc:"},
+        "ex1a": {},
     }
+}
+
+EX1A_PLATFORMS = {
+    "exab": {"copy_command": "scp login.exab.sc:"},
+    "excd": {"copy_command": "scp login.excd.sc:"}
 }
 
 
@@ -30,6 +35,20 @@ def run_command(command):
     return subprocess.run(
         command, shell=True, capture_output=True, text=True, timeout=60
     )
+
+
+def get_ex_platform():
+    """
+    If KGOs are required for ex1a ask the user which platform the tests were run on and adapt the PLATFORM dictionary
+    """
+    zone = input("Which ex1a zone were the tests run on? 1 for EXAB or 2 for EXCD: ")
+
+    if zone == "1" or zone.lower() == "exab":
+        PLATFORMS["meto"]["ex1a"] = EX1A_PLATFORMS["exab"]
+    elif zone == "2" or zone.lower() == "excd":
+        PLATFORMS["meto"]["ex1a"] = EX1A_PLATFORMS["excd"]
+    else:
+        sys.exit("EX Platform choice not recognised")
 
 
 def parse_status_file(status_path, job):
@@ -204,6 +223,9 @@ if __name__ == "__main__":
     flow_file = os.path.join(suite_path, "log", "config", "flow-processed.cylc")
 
     failed_jobs = find_failed_tasks(log_file)
+
+    if args.site == "meto" and str(failed_jobs).find("ex1a"):
+        get_ex_platform()
 
     for failed_job in failed_jobs:
         print(f"[INFO]: Copying kgo for {failed_job}")
