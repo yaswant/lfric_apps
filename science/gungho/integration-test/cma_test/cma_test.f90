@@ -35,9 +35,6 @@ program cma_test
   use extrusion_mod,                  only : extrusion_type, &
                                              uniform_extrusion_type, &
                                              TWOD
-  use mpi_mod,                        only : global_mpi, &
-                                             create_comm, destroy_comm, &
-                                             lfric_comm_type
   use field_mod,                      only : field_type
   use fs_continuity_mod,              only : W0,W1,W2,W3
   use function_space_mod,             only : function_space_type
@@ -48,6 +45,9 @@ program cma_test
   use driver_collections_mod,         only : init_collections, final_collections
   use driver_mesh_mod,                only : init_mesh
   use gungho_extrusion_mod,           only : create_extrusion
+  use lfric_mpi_mod,                  only : global_mpi, &
+                                             create_comm, destroy_comm, &
+                                             lfric_comm_type
   use log_mod,                        only : log_event,          &
                                              log_scratch_space,  &
                                              initialise_logging, &

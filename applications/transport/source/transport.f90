@@ -17,10 +17,10 @@ program transport
   use driver_modeldb_mod,      only: modeldb_type
   use driver_time_mod,         only: init_time, final_time
   use driver_timer_mod,        only: init_timers, final_timers
+  use lfric_mpi_mod,           only: global_mpi
   use log_mod,                 only: log_event,       &
                                      log_level_trace, &
                                      log_scratch_space
-  use mpi_mod,                 only: global_mpi
   use namelist_collection_mod, only: namelist_collection_type
 
   use transport_mod,        only: transport_required_namelists

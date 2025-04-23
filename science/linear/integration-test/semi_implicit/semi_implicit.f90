@@ -15,13 +15,13 @@ program semi_implicit
   use driver_time_mod,         only: init_time, final_time
   use driver_modeldb_mod,      only: modeldb_type
   use halo_comms_mod,          only: initialise_halo_comms, finalise_halo_comms
+  use lfric_mpi_mod,           only: global_mpi, &
+                                     create_comm, destroy_comm, &
+                                     lfric_comm_type
   use log_mod,                 only: initialise_logging, finalise_logging, &
                                      log_event,       &
                                      LOG_LEVEL_ERROR, &
                                      LOG_LEVEL_INFO
-  use mpi_mod,                 only: mpi_type, global_mpi, &
-                                     create_comm, destroy_comm, &
-                                     lfric_comm_type
   use namelist_collection_mod, only: namelist_collection_type
   use tl_test_driver_mod,      only: initialise,                  &
                                      finalise,                    &

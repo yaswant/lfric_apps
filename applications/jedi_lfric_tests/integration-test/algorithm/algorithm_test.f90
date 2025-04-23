@@ -27,14 +27,14 @@ program algorithm_test
                                      PRIME_EXTRUSION, TWOD
   use halo_comms_mod,          only: initialise_halo_comms, &
                                      finalise_halo_comms
+  use lfric_mpi_mod,           only: global_mpi, &
+                                     create_comm, destroy_comm, &
+                                     lfric_comm_type
   use log_mod,                 only: log_event,          &
                                      initialise_logging, &
                                      finalise_logging,   &
                                      LOG_LEVEL_ERROR,    &
                                      LOG_LEVEL_INFO
-  use mpi_mod,                 only: global_mpi, &
-                                     create_comm, destroy_comm, &
-                                     lfric_comm_type
   use namelist_collection_mod, only: namelist_collection_type
   use namelist_mod,            only: namelist_type
 

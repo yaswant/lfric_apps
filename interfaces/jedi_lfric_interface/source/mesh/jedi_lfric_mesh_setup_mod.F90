@@ -17,10 +17,10 @@ module jedi_lfric_mesh_setup_mod
                                      uniform_extrusion_type, &
                                      TWOD
   use gungho_extrusion_mod,    only: create_extrusion
+  use lfric_mpi_mod,           only: lfric_mpi_type
   use log_mod,                 only: log_event,         &
                                      log_scratch_space, &
                                      LOG_LEVEL_ERROR
-  use mpi_mod,                 only: mpi_type
   use namelist_collection_mod, only: namelist_collection_type
   use namelist_mod,            only: namelist_type
 
@@ -46,7 +46,7 @@ contains
     type(namelist_collection_type), intent(in) :: configuration
     !> @todo: This should be intent in but when calling the method I get
     !> a compiler failure
-    class(mpi_type),             intent(inout) :: mpi_obj
+    class(lfric_mpi_type),       intent(inout) :: mpi_obj
     character(len=*),     optional, intent(in) :: alt_mesh_name
 
     ! Local

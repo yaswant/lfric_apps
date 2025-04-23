@@ -28,7 +28,7 @@ program solver
                                      finalise_halo_comms
   use init_solver_miniapp_mod, only: init_solver_miniapp
   use inventory_by_mesh_mod,   only: inventory_by_mesh_type
-  use mpi_mod,                 only: global_mpi, &
+  use lfric_mpi_mod,           only: global_mpi, &
                                      create_comm, destroy_comm, &
                                      lfric_comm_type
   use field_mod,               only: field_type

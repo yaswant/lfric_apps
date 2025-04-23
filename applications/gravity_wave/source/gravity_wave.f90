@@ -21,10 +21,10 @@ program gravity_wave
   use driver_timer_mod,        only: init_timers, final_timers
   use gravity_wave_mod,        only: gravity_wave_required_namelists
   use gravity_wave_driver_mod, only: initialise, step, finalise
+  use lfric_mpi_mod,           only: global_mpi
   use log_mod,                 only: log_event,       &
                                      log_level_trace, &
                                      log_scratch_space
-  use mpi_mod,                 only: global_mpi
 
   implicit none
 

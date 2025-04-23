@@ -39,6 +39,6 @@ tracer_advection/%.o tracer_advection/%.mod: private FFLAGS_EXTRA = $(FFLAGS_UM_
 %/limited_area_constants_mod.o: private FFLAGS_EXTRA = $(FFLAGS_INTEL_FIX_ARG)
 
 $(info Disable warnings-turned-error caused by undeclared external functions - see ifort.mk)
-%mpi_mod.o %mpi_mod.mod: private FFLAGS_EXTRA = $(FFLAGS_INTEL_EXTERNALS)
+%lfric_mpi_mod.o %lfric_mpi_mod.mod: private FFLAGS_EXTRA = $(FFLAGS_INTEL_EXTERNALS)
 socrates/src/radiance_core/%.o: private FFLAGS_EXTRA = $(FFLAGS_INTEL_EXTERNALS)
 socrates/src/interface_core/%.o: private FFLAGS_EXTRA = $(FFLAGS_INTEL_EXTERNALS)

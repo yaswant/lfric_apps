@@ -53,7 +53,6 @@ module gungho_driver_mod
                                          log_scratch_space
   use mesh_mod,                   only : mesh_type
   use mesh_collection_mod,        only : mesh_collection
-  use mpi_mod,                    only : mpi_type
   use multires_coupling_config_mod, &
                                   only : aerosol_mesh_name
   use section_choice_config_mod,  only : iau, &

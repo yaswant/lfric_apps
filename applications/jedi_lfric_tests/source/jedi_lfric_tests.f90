@@ -23,11 +23,11 @@ program jedi_lfric_tests
   use driver_time_mod,        only : init_time, final_time
   use gungho_mod,             only : gungho_required_namelists
   use driver_modeldb_mod,     only : modeldb_type
+  use lfric_mpi_mod,          only : global_mpi
   use linear_driver_mod,      only : initialise, step, finalise
   use log_mod,                only : log_event,       &
                                      log_level_trace, &
                                      log_scratch_space
-  use mpi_mod,                only : global_mpi
 
   implicit none
 

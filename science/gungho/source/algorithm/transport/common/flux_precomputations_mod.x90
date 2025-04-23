@@ -43,6 +43,7 @@ module flux_precomputations_alg_mod
                                             get_face_selector_ns
   use integer_field_mod,              only: integer_field_type
   use io_config_mod,                  only: subroutine_timers
+  use lfric_mpi_mod,                  only: global_mpi
   use limited_area_lbc_alg_mod,       only: overwrite_blending_zone_rtran
   use local_mesh_mod,                 only: local_mesh_type
   use log_mod,                        only: log_event,                         &
@@ -54,7 +55,6 @@ module flux_precomputations_alg_mod
                                             log_level
   use mesh_mod,                       only: mesh_type
   use mesh_collection_mod,            only: mesh_collection
-  use mpi_mod,                        only: global_mpi
   use psykal_lite_transport_mod,      only: invoke_deep_shift_mass,            &
                                             invoke_deep_X_divideby_Y,          &
                                             invoke_deep_X_times_Y

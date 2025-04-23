@@ -46,7 +46,7 @@ $(info LFRic compile options required for files with OpenMP - see Ticket 1490)
 # psy/%.o psy/%.mod: private FFLAGS_EXTRA = $(FFLAGS_INTEL_FIX_ARG)
 
 
-# -warn noexternals applied to code that imports mpi_mod to avoid
+# -warn noexternals applied to code that imports lfric_mpi_mod to avoid
 # a warning-turned-error about missing interfaces for MPI calls in
 # mpi.mod, such as MPI_Allreduce - switching to mpi_f08.mod resolves
 # this via polymorphic interface declarations. Some SOCRATES functions

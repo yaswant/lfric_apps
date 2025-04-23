@@ -19,7 +19,7 @@ module jedi_lfric_comm_mod
   use constants_mod,         only: i_def
   use halo_comms_mod,        only: initialise_halo_comms, &
                                    finalise_halo_comms
-  use mpi_mod,               only: global_mpi, &
+  use lfric_mpi_mod,         only: global_mpi, &
                                    lfric_comm_type
 
 ! USE_XIOS flag used for models using the XIOS I/O server

@@ -103,7 +103,7 @@ subroutine adjust_time_axis(time_axis_offset)
 use netcdf,             only: nf90_noerr, nf90_open, nf90_write, nf90_close,   &
                               nf90_inq_dimid, nf90_inquire_dimension,          &
                               nf90_inq_varid, nf90_get_var, nf90_put_var
-use mpi_mod,            only: global_mpi
+use lfric_mpi_mod,      only: global_mpi
 
 ! LFRic modules
 use constants_mod,      only: i_def, r_second

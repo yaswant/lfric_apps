@@ -49,7 +49,7 @@ contains
 !> @param [out] out_communicator The communicator to be used by the application
 subroutine initialise( self, program_name, out_communicator )
 
-  use mpi_mod,                only: create_comm, &
+  use lfric_mpi_mod,          only: create_comm, &
                                     lfric_comm_type
   use jedi_lfric_comm_mod,    only: init_external_comm
 
@@ -87,7 +87,7 @@ subroutine initialise_infrastructure( self, filename, model_communicator )
   use driver_config_mod,             only: init_config
   use driver_log_mod,                only: init_logger
   use jedi_lfric_tests_mod,          only: jedi_lfric_tests_required_namelists
-  use mpi_mod,                       only: lfric_comm_type
+  use lfric_mpi_mod,                 only: lfric_comm_type
 
   implicit none
 
@@ -137,7 +137,7 @@ subroutine jedi_run_destructor(self)
   use driver_log_mod,                only: final_logger
   use jedi_lfric_comm_mod,           only: final_external_comm, &
                                            final_internal_comm
-  use mpi_mod,                       only: destroy_comm
+  use lfric_mpi_mod,                 only: destroy_comm
 
   implicit none
 

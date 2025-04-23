@@ -16,12 +16,12 @@ program runge_kutta
   use driver_modeldb_mod,     only: modeldb_type
   use halo_comms_mod,         only: initialise_halo_comms, &
                                     finalise_halo_comms
+  use lfric_mpi_mod,          only: create_comm, destroy_comm, global_mpi, &
+                                    lfric_comm_type
   use log_mod,                only: initialise_logging, finalise_logging, &
                                     log_event,       &
                                     LOG_LEVEL_ERROR, &
                                     LOG_LEVEL_INFO
-  use mpi_mod,                only: create_comm, destroy_comm, global_mpi, &
-                                    lfric_comm_type
   use tl_test_driver_mod,     only: initialise,                  &
                                     finalise,                    &
                                     run_timesteps,               &

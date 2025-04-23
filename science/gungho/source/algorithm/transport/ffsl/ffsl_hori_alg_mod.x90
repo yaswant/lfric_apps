@@ -18,9 +18,9 @@ module ffsl_hori_alg_mod
                                               get_face_selector_ew, &
                                               get_face_selector_ns
   use integer_field_mod,                only: integer_field_type
+  use lfric_mpi_mod,                    only: global_mpi
   use log_mod,                          only: log_event, LOG_LEVEL_ERROR
   use mesh_mod,                         only: mesh_type
-  use mpi_mod,                          only: global_mpi
   use r_tran_field_mod,                 only: r_tran_field_type
   use timer_mod,                        only: timer
 

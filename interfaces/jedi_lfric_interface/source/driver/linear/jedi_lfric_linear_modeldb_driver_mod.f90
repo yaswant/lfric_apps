@@ -52,6 +52,7 @@ module jedi_lfric_linear_modeldb_driver_mod
                                            finalise_infrastructure, &
                                            finalise_model
   use gungho_time_axes_mod,         only : gungho_time_axes_type
+  use lfric_mpi_mod,                only : lfric_mpi_type
   use log_mod,                      only : log_event,         &
                                            log_scratch_space, &
                                            LOG_LEVEL_TRACE,   &
@@ -62,7 +63,6 @@ module jedi_lfric_linear_modeldb_driver_mod
   use linear_step_mod,              only : linear_step
   use mesh_mod,                     only : mesh_type
   use mesh_collection_mod,          only : mesh_collection
-  use mpi_mod,                      only : mpi_type
   use namelist_mod,                 only : namelist_type
 
   implicit none
@@ -84,10 +84,10 @@ contains
 
     implicit none
 
-    character(*),           intent(in) :: modeldb_name
-    character(len=*),       intent(in) :: filename
-    type(mpi_type), target, intent(in) :: mpi_obj
-    type(modeldb_type),  intent(inout) :: modeldb
+    character(*),                 intent(in) :: modeldb_name
+    character(len=*),             intent(in) :: filename
+    type(lfric_mpi_type), target, intent(in) :: mpi_obj
+    type(modeldb_type),        intent(inout) :: modeldb
     ! Local
     type( gungho_time_axes_type )         :: model_axes
     type( mesh_type ),            pointer :: mesh

@@ -45,7 +45,7 @@ use namelist_mod,               only: namelist_type
 use step_calendar_mod,          only: step_calendar_type
 
 ! Interface to mpi
-use mpi_mod,                    only: global_mpi, create_comm, destroy_comm, &
+use lfric_mpi_mod,              only: global_mpi, create_comm, destroy_comm, &
                                       lfric_comm_type
 
 ! Configuration modules

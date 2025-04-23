@@ -16,13 +16,13 @@ module jedi_lfric_io_setup_mod
   use field_mod,                 only: field_type
   use inventory_by_mesh_mod,     only: inventory_by_mesh_type
   use io_config_mod,             only: subroutine_timers
+  use lfric_mpi_mod,             only: lfric_mpi_type, &
+                                       lfric_comm_type
   use log_mod,                   only: log_event, log_level_error
   use linked_list_mod,           only: linked_list_type
   use mesh_mod,                  only: mesh_type
   use mesh_collection_mod,       only: mesh_collection
   use model_clock_mod,           only: model_clock_type
-  use mpi_mod,                   only: mpi_type, &
-                                       lfric_comm_type
   use namelist_collection_mod,   only: namelist_collection_type
   use namelist_mod,              only: namelist_type
 
@@ -58,7 +58,7 @@ contains
     implicit none
 
     character(len=*),                       intent(in) :: context_name
-    class(mpi_type),                        intent(in) :: mpi
+    class(lfric_mpi_type),                  intent(in) :: mpi
     type(jedi_lfric_file_meta_type),        intent(in) :: file_meta(:)
     character(len=*),                       intent(in) :: mesh_name
     class(calendar_type),                   intent(in) :: calendar

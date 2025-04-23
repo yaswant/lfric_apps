@@ -31,15 +31,14 @@ program jedi_lfric_time_test
                                               run_duration_divide_remainder_err,    &
                                               run_duration_divide_int_zero_err,     &
                                               run_duration_divide_int_remainder_err
-
+  use lfric_mpi_mod,                   only : global_mpi, &
+                                              create_comm, destroy_comm, &
+                                              lfric_comm_type
   use log_mod,                         only : log_event,          &
                                               initialise_logging, &
                                               finalise_logging,   &
                                               LOG_LEVEL_ERROR,    &
                                               LOG_LEVEL_INFO
-  use mpi_mod,                         only : global_mpi, &
-                                              create_comm, destroy_comm, &
-                                              lfric_comm_type
   use namelist_collection_mod,         only : namelist_collection_type
 
   implicit none

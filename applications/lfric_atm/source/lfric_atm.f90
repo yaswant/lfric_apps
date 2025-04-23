@@ -27,7 +27,7 @@ program lfric_atm
   use gungho_mod,             only: gungho_required_namelists
   use driver_modeldb_mod,     only: modeldb_type
   use gungho_driver_mod,      only: initialise, step, finalise
-  use mpi_mod,                only: global_mpi
+  use lfric_mpi_mod,          only: global_mpi
 
   implicit none
 

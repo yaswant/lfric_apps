@@ -26,13 +26,13 @@ module coupler_mod
   use constants_mod,                  only: i_def, r_def, str_def, l_def, &
                                             i_halo_index, imdi, rmdi
   use timestepping_config_mod,        only: dt
+  use lfric_mpi_mod,                  only: global_mpi
   use log_mod,                        only: log_event,       &
                                             LOG_LEVEL_INFO,  &
                                             LOG_LEVEL_DEBUG, &
                                             LOG_LEVEL_ERROR, &
                                             log_scratch_space
   use mesh_mod,                       only: mesh_type
-  use mpi_mod,                        only: global_mpi
   use field_parent_mod,               only: write_interface, read_interface,  &
                                             checkpoint_write_interface,       &
                                             checkpoint_read_interface

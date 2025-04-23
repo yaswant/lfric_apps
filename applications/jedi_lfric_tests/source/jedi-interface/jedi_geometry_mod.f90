@@ -31,12 +31,12 @@ module jedi_geometry_mod
   use jedi_lfric_duration_mod,       only : jedi_duration_type
   use jedi_lfric_file_meta_mod,      only : jedi_lfric_file_meta_type
   use jedi_lfric_io_setup_mod,       only : initialise_io
+  use lfric_mpi_mod,                 only : lfric_mpi_type, &
+                                            lfric_comm_type
   use log_mod,                       only : log_event, LOG_LEVEL_ERROR
   use mesh_mod,                      only : mesh_type
   use mesh_collection_mod,           only : mesh_collection
   use model_clock_mod,               only : model_clock_type
-  use mpi_mod,                       only : mpi_type, &
-                                            lfric_comm_type
   use namelist_collection_mod,       only : namelist_collection_type
   use namelist_mod,                  only : namelist_type
 
@@ -107,7 +107,7 @@ subroutine initialise( self, mpi_comm, configuration )
 
   ! Local
   type(mesh_type), pointer     :: mesh
-  type(mpi_type)               :: mpi_obj
+  type(lfric_mpi_type)         :: mpi_obj
   type(namelist_type), pointer :: geometry_configuration
   integer                      :: i_horizontal
   real(real64)                 :: domain_height
@@ -226,7 +226,7 @@ function get_mpi_comm(self) result(mpi_obj)
 implicit none
 
   class( jedi_geometry_type ), intent(in) :: self
-  type( mpi_type )                        :: mpi_obj
+  type( lfric_mpi_type )                  :: mpi_obj
   type(lfric_comm_type)                   :: lfric_comm
 
   call lfric_comm%set_comm_mpi_val( self%mpi_comm )

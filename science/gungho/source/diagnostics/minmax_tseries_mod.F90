@@ -12,8 +12,8 @@ module minmax_tseries_mod
   use diagnostic_alg_mod,                only: scalar_nodal_diagnostic_alg, &
                                                vector_nodal_diagnostic_alg
   use files_config_mod,                  only: diag_stem_name
+  use lfric_mpi_mod,                     only: global_mpi
   use mesh_mod,                          only: mesh_type
-  use mpi_mod,                           only: global_mpi
   use fs_continuity_mod,                 only: W1, W2
 
   implicit none

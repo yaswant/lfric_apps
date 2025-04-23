@@ -30,11 +30,11 @@ module jedi_lfric_nl_modeldb_driver_mod
   use driver_modeldb_mod,           only : modeldb_type
   use gungho_model_mod,             only : finalise_infrastructure, &
                                            finalise_model
+  use lfric_mpi_mod,                only : lfric_mpi_type
   use log_mod,                      only : log_event,         &
                                            log_scratch_space, &
                                            LOG_LEVEL_TRACE,   &
                                            LOG_LEVEL_ERROR
-  use mpi_mod,                      only : mpi_type
   use namelist_mod,                 only : namelist_type
 
   implicit none
@@ -57,10 +57,10 @@ contains
 
     implicit none
 
-    character(*),           intent(in) :: modeldb_name
-    character(len=*),       intent(in) :: filename
-    type(mpi_type), target, intent(in) :: mpi_obj
-    type(modeldb_type),  intent(inout) :: modeldb
+    character(*),                 intent(in) :: modeldb_name
+    character(len=*),             intent(in) :: filename
+    type(lfric_mpi_type), target, intent(in) :: mpi_obj
+    type(modeldb_type),        intent(inout) :: modeldb
     ! Local
     character(len=*), parameter :: io_context_name = "gungho_atm"
 

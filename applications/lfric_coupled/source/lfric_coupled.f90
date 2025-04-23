@@ -26,7 +26,7 @@ program lfric_coupled
   use gungho_mod,             only : gungho_required_namelists
   use gungho_driver_mod,      only : initialise, step, finalise
   use driver_modeldb_mod,     only : modeldb_type
-  use mpi_mod,                only : global_mpi
+  use lfric_mpi_mod,          only : global_mpi
 
   implicit none
 
