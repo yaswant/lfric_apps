@@ -80,12 +80,15 @@ module adjt_end_transport_step_alg_mod
     type(function_space_type), pointer :: vector_space_w2_ptr
 
     ! Inner products
-    real(kind=r_tran) :: inner1
-    real(kind=r_def)  :: sum_flux_inner_prod
-    real(kind=r_def)  :: flux_last_step_inner_prod
-    real(kind=r_tran) :: inner2
-    real(kind=r_def)  :: sum_flux_sum_flux_input_inner_prod
-    real(kind=r_def)  :: flux_last_flux_last_inp_inner_prod
+    real(kind=r_tran)            :: inner1
+    real(kind=r_def)             :: sum_flux_inner_prod
+    real(kind=r_tran)            :: sum_flux_sf
+    real(kind=r_def)             :: flux_last_step_inner_prod
+    real(kind=r_tran)            :: flux_last_step_sf
+    real(kind=r_tran)            :: inner2
+    real(kind=r_def)             :: sum_flux_sum_flux_input_inner_prod
+    real(kind=r_def)             :: flux_last_flux_last_inp_inner_prod
+    real(kind=r_tran), parameter :: eps = 1e-30_r_tran
 
     ! Test parameters and variables
     real(kind=r_tran), parameter :: overall_tolerance = 1500.0_r_tran
@@ -129,9 +132,13 @@ module adjt_end_transport_step_alg_mod
     call invoke( x_innerproduct_x( sum_flux_inner_prod, sum_flux ),             &
                  x_innerproduct_x( flux_last_step_inner_prod, flux_last_step ) )
 
+    ! Determining scale factors
+    sum_flux_sf = 1.0_r_tran/( real( sum_flux_inner_prod, r_tran ) + eps )
+    flux_last_step_sf = 1.0_r_tran/( real( flux_last_step_inner_prod, r_tran ) + eps )
+
     inner1 = 0.0_r_tran
-    inner1 = inner1 + real( sum_flux_inner_prod, r_tran )
-    inner1 = inner1 + real( flux_last_step_inner_prod, r_tran )
+    inner1 = inner1 + real( sum_flux_inner_prod, r_tran )*sum_flux_sf
+    inner1 = inner1 + real( flux_last_step_inner_prod, r_tran )*flux_last_step_sf
     write(log_scratch_space, *) "adjt_build_up_flux inner products:"
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
     write(log_scratch_space, *) "sum_flux inner product = ", real( sum_flux_inner_prod, r_tran )
@@ -139,6 +146,10 @@ module adjt_end_transport_step_alg_mod
     write(log_scratch_space, *) "flux_last_step inner product = ", real( flux_last_step_inner_prod, r_tran )
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
     call counter_flux_prod_rtran( inner1, pert_wind_ls_rho_controller )
+
+    ! Scaling fields
+    call invoke( inc_a_times_X( sum_flux_sf, sum_flux ), &
+                 inc_a_times_X( flux_last_step_sf, flux_last_step ) )
 
     ! Adjoint alg call and inner products
     sum_flux_sum_flux_input_inner_prod = 0.0_r_def

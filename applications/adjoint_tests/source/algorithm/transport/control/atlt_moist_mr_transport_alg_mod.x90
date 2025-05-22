@@ -97,12 +97,15 @@ module atlt_moist_mr_transport_alg_mod
     type(function_space_type), pointer :: vector_space_wtheta_ptr
 
     ! Inner products
-    real(kind=r_def) :: inner1
-    real(kind=r_def) :: mr_out_inner_prod
-    real(kind=r_def) :: mr_in_inner_prod
-    real(kind=r_def) :: inner2
-    real(kind=r_def) :: mo_mo_inp_inner_prod
-    real(kind=r_def) :: mi_mi_inp_inner_prod
+    real(kind=r_def)            :: inner1
+    real(kind=r_def)            :: mr_out_inner_prod
+    real(kind=r_def)            :: mr_out_sf
+    real(kind=r_def)            :: mr_in_inner_prod
+    real(kind=r_def)            :: mr_in_sf
+    real(kind=r_def)            :: inner2
+    real(kind=r_def)            :: mo_mo_inp_inner_prod
+    real(kind=r_def)            :: mi_mi_inp_inner_prod
+    real(kind=r_def), parameter :: eps = 1e-30_r_def
 
     ! Test parameters and variables
     real(kind=r_def), parameter :: overall_tolerance = 1500.0_r_def
@@ -176,12 +179,21 @@ module atlt_moist_mr_transport_alg_mod
       mr_in_inner_prod = 0.0_r_def
       call invoke( x_innerproduct_x( mr_out_inner_prod, mr_out(imr) ), &
                    x_innerproduct_x( mr_in_inner_prod, mr_in(imr) ) )
-      inner1 = inner1 + mr_out_inner_prod
-      inner1 = inner1 + mr_in_inner_prod
+
+      ! Determining scale factors
+      mr_out_sf = 1.0_r_def/(mr_out_inner_prod + eps)
+      mr_in_sf = 1.0_r_def/(mr_in_inner_prod + eps)
+
+      inner1 = inner1 + mr_out_inner_prod*mr_out_sf
+      inner1 = inner1 + mr_in_inner_prod*mr_in_sf
       write(log_scratch_space, *) "mr_out(imr = ", imr, ") inner product = ", mr_out_inner_prod
       call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
       write(log_scratch_space, *) "mr_in(imr = ", imr, ") inner product = ", mr_in_inner_prod
       call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+
+      ! Scaling fields
+      call invoke( inc_a_times_X( mr_out_sf, mr_out(imr) ), &
+                   inc_a_times_X( mr_in_sf, mr_in(imr) ) )
     end do
     call flux_pc_ref_flux_prod_rdef( inner1, ls_transport_controller, 1_i_def )
     call flux_pc_ref_flux_prod_rdef( inner1, pert_transport_controller, 1_i_def )

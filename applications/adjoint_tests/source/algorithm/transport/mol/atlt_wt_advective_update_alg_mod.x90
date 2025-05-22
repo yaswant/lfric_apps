@@ -78,13 +78,16 @@ module atlt_wt_advective_update_alg_mod
     ! Inner products
     real(kind=r_def)            :: inner1
     real(kind=r_def)            :: rhs_inner_prod
+    real(kind=r_def)            :: rhs_sf
     real(kind=r_def)            :: adv_field_inner_prod
+    real(kind=r_def)            :: adv_field_sf
     real(kind=r_def)            :: wind_inner_prod
-    real(kind=r_def), parameter :: rhs_sf = 1.0E22_r_def
+    real(kind=r_def)            :: wind_sf
     real(kind=r_def)            :: inner2
     real(kind=r_def)            :: rhs_rhs_input_inner_prod
     real(kind=r_def)            :: adv_field_adv_field_input_inner_prod
     real(kind=r_def)            :: wind_wind_input_inner_prod
+    real(kind=r_def), parameter :: eps = 1e-30_r_def
 
     ! Test parameters and variables
     real(kind=r_def), parameter :: overall_tolerance = 1500.0_r_def
@@ -146,10 +149,15 @@ module atlt_wt_advective_update_alg_mod
                  x_innerproduct_x( adv_field_inner_prod, adv_field ), &
                  x_innerproduct_x( wind_inner_prod, wind ) )
 
+    ! Determining scale factors
+    rhs_sf = 1.0_r_def/(rhs_inner_prod + eps)
+    adv_field_sf = 1.0_r_def/(adv_field_inner_prod + eps)
+    wind_sf = 1.0_r_def/(wind_inner_prod + eps)
+
     inner1 = 0.0_r_def
-    inner1 = inner1 + rhs_inner_prod
-    inner1 = inner1 + adv_field_inner_prod
-    inner1 = inner1 + wind_inner_prod
+    inner1 = inner1 + rhs_inner_prod*rhs_sf
+    inner1 = inner1 + adv_field_inner_prod*adv_field_sf
+    inner1 = inner1 + wind_inner_prod*wind_sf
     write(log_scratch_space, *) "atlt_wt_advective_update inner products:"
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
     write(log_scratch_space, *) "rhs inner product = ", rhs_inner_prod
@@ -158,6 +166,11 @@ module atlt_wt_advective_update_alg_mod
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
     write(log_scratch_space, *) "wind inner product = ", wind_inner_prod
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+
+    ! Scaling fields
+    call invoke( inc_a_times_X( rhs_sf, rhs ),             &
+                 inc_a_times_X( adv_field_sf, adv_field ), &
+                 inc_a_times_X( wind_sf, wind ) )
 
     ! Adjoint alg call and inner products
     rhs_rhs_input_inner_prod = 0.0_r_def
@@ -232,12 +245,15 @@ module atlt_wt_advective_update_alg_mod
     type(function_space_type), pointer :: vector_space_wtheta_ptr
 
     ! Inner products
-    real(kind=r_def) :: advective_inner_prod
-    real(kind=r_def) :: wind_inner_prod
-    real(kind=r_def) :: inner1
-    real(kind=r_def) :: advective_advective_input_inner_prod
-    real(kind=r_def) :: wind_wind_input_inner_prod
-    real(kind=r_def) :: inner2
+    real(kind=r_def)            :: advective_inner_prod
+    real(kind=r_def)            :: advective_sf
+    real(kind=r_def)            :: wind_inner_prod
+    real(kind=r_def)            :: wind_sf
+    real(kind=r_def)            :: inner1
+    real(kind=r_def)            :: advective_advective_input_inner_prod
+    real(kind=r_def)            :: wind_wind_input_inner_prod
+    real(kind=r_def)            :: inner2
+    real(kind=r_def), parameter :: eps = 1e-30_r_def
 
     ! Test parameters and variables
     real(kind=r_def), parameter :: overall_tolerance = 1500.0_r_def
@@ -271,15 +287,23 @@ module atlt_wt_advective_update_alg_mod
     call invoke( x_innerproduct_x(advective_inner_prod, u_grad_f), &
                  x_innerproduct_x(wind_inner_prod, wind) )
 
+    ! Determining scale factors
+    advective_sf = 1.0_r_def/(advective_inner_prod + eps)
+    wind_sf = 1.0_r_def/(wind_inner_prod + eps)
+
     inner1 = 0.0_r_def
-    inner1 = inner1 + advective_inner_prod
-    inner1 = inner1 + wind_inner_prod
+    inner1 = inner1 + advective_inner_prod*advective_sf
+    inner1 = inner1 + wind_inner_prod*wind_sf
     write(log_scratch_space, *) "atlt_hori_wt_update inner products:"
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
     write(log_scratch_space, *) "advective inner product = ", advective_inner_prod
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
     write(log_scratch_space, *) "wind inner product = ", wind_inner_prod
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+
+    ! Scaling fields
+    call invoke( inc_a_times_X( advective_sf, u_grad_f ), &
+                 inc_a_times_X( wind_sf, wind ) )
 
     advective_advective_input_inner_prod = 0.0_r_def
     wind_wind_input_inner_prod = 0.0_r_def
@@ -341,14 +365,18 @@ module atlt_wt_advective_update_alg_mod
     type(function_space_type), pointer :: vector_space_wtheta_ptr
 
     ! Inner products
-    real(kind=r_def) :: advective_inner_prod
-    real(kind=r_def) :: wind_inner_prod
-    real(kind=r_def) :: field_inner_prod
-    real(kind=r_def) :: inner1
-    real(kind=r_def) :: advective_advective_input_inner_prod
-    real(kind=r_def) :: wind_wind_input_inner_prod
-    real(kind=r_def) :: field_field_input_inner_prod
-    real(kind=r_def) :: inner2
+    real(kind=r_def)            :: advective_inner_prod
+    real(kind=r_def)            :: advective_sf
+    real(kind=r_def)            :: wind_inner_prod
+    real(kind=r_def)            :: wind_sf
+    real(kind=r_def)            :: field_inner_prod
+    real(kind=r_def)            :: field_sf
+    real(kind=r_def)            :: inner1
+    real(kind=r_def)            :: advective_advective_input_inner_prod
+    real(kind=r_def)            :: wind_wind_input_inner_prod
+    real(kind=r_def)            :: field_field_input_inner_prod
+    real(kind=r_def)            :: inner2
+    real(kind=r_def), parameter :: eps = 1e-30_r_def
 
     ! Test parameters and variables
     real(kind=r_def), parameter :: overall_tolerance = 1500.0_r_def
@@ -388,10 +416,15 @@ module atlt_wt_advective_update_alg_mod
                  x_innerproduct_x(wind_inner_prod, wind),          &
                  x_innerproduct_x(field_inner_prod, field) )
 
+    ! Determining scale factors
+    advective_sf = 1.0_r_def/(advective_inner_prod + eps)
+    wind_sf = 1.0_r_def/(wind_inner_prod + eps)
+    field_sf = 1.0_r_def/(field_inner_prod + eps)
+
     inner1 = 0.0_r_def
-    inner1 = inner1 + advective_inner_prod
-    inner1 = inner1 + wind_inner_prod
-    inner1 = inner1 + field_inner_prod
+    inner1 = inner1 + advective_inner_prod*advective_sf
+    inner1 = inner1 + wind_inner_prod*wind_sf
+    inner1 = inner1 + field_inner_prod*field_sf
     write(log_scratch_space, *) "atlt_vert_wt_update inner products:"
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
     write(log_scratch_space, *) "advective inner product = ", advective_inner_prod
@@ -400,6 +433,11 @@ module atlt_wt_advective_update_alg_mod
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
     write(log_scratch_space, *) "field inner product = ", field_inner_prod
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+
+    ! Scaling fields
+    call invoke( inc_a_times_X( advective_sf, u_grad_f ), &
+                 inc_a_times_X( wind_sf, wind ), &
+                 inc_a_times_X( field_sf, field ) )
 
     advective_advective_input_inner_prod = 0.0_r_def
     wind_wind_input_inner_prod = 0.0_r_def

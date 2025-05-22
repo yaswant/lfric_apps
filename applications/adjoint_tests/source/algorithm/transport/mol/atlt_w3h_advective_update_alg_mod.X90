@@ -61,13 +61,14 @@ module atlt_w3h_advective_update_alg_mod
 
     ! Inner product variables
     real(kind=r_def)            :: advective_increment_inner_prod
+    real(kind=r_def)            :: advective_increment_sf
     real(kind=r_def)            :: wind_inner_prod
-    real(kind=r_def), parameter :: advective_increment_sf = 1.0E-10_r_def
-    real(kind=r_def), parameter :: wind_sf = 1.0E-12_r_def
+    real(kind=r_def)            :: wind_sf
     real(kind=r_def)            :: inner1
     real(kind=r_def)            :: advective_increment_advective_increment_input_inner_prod
     real(kind=r_def)            :: wind_wind_input_inner_prod
     real(kind=r_def)            :: inner2
+    real(kind=r_def), parameter :: eps = 1e-30_r_def
 
     ! Test parameters and variables
     real(kind=r_def), parameter :: overall_tolerance = 1500.0_r_def
@@ -109,14 +110,18 @@ module atlt_w3h_advective_update_alg_mod
                  x_innerproduct_x(advective_increment_inner_prod, advective_increment), &
                  x_innerproduct_x(wind_inner_prod, wind) )
 
+    ! Determining scale factors
+    advective_increment_sf = 1.0_r_def/(advective_increment_inner_prod + eps)
+    wind_sf = 1.0_r_def/(wind_inner_prod + eps)
+
     inner1 = 0.0_r_def
     inner1 = inner1 + advective_increment_inner_prod*advective_increment_sf
     inner1 = inner1 + wind_inner_prod*wind_sf
     write(log_scratch_space, *) "atlt_w3h_advective_update inner products:"
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
-    write(log_scratch_space, *) "advective_increment inner product = ", advective_increment_inner_prod*advective_increment_sf
+    write(log_scratch_space, *) "advective_increment inner product = ", advective_increment_inner_prod
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
-    write(log_scratch_space, *) "wind inner product = ", wind_inner_prod*wind_sf
+    write(log_scratch_space, *) "wind inner product = ", wind_inner_prod
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
 
     ! Scaling fields

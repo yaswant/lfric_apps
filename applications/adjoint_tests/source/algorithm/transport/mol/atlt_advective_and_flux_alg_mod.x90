@@ -77,18 +77,24 @@ module atlt_advective_and_flux_alg_mod
     type(function_space_type), pointer :: vector_space_w3_ptr
 
     ! Inner products
-    real(kind=r_def) :: inner1
-    real(kind=r_def) :: mass_flux_1_inner_prod
-    real(kind=r_def) :: mass_flux_2_inner_prod
-    real(kind=r_def) :: adv_inc_inner_prod
-    real(kind=r_def) :: density_inner_prod
-    real(kind=r_def) :: wind_inner_prod
-    real(kind=r_def) :: inner2
-    real(kind=r_def) :: mass_flux_1_mass_flux_1_input_inner_prod
-    real(kind=r_def) :: mass_flux_2_mass_flux_2_input_inner_prod
-    real(kind=r_def) :: adv_inc_adv_inc_input_inner_prod
-    real(kind=r_def) :: density_density_input_inner_prod
-    real(kind=r_def) :: wind_wind_input_inner_prod
+    real(kind=r_def)            :: inner1
+    real(kind=r_def)            :: mass_flux_1_inner_prod
+    real(kind=r_def)            :: mass_flux_1_sf
+    real(kind=r_def)            :: mass_flux_2_inner_prod
+    real(kind=r_def)            :: mass_flux_2_sf
+    real(kind=r_def)            :: adv_inc_inner_prod
+    real(kind=r_def)            :: adv_inc_sf
+    real(kind=r_def)            :: density_inner_prod
+    real(kind=r_def)            :: density_sf
+    real(kind=r_def)            :: wind_inner_prod
+    real(kind=r_def)            :: wind_sf
+    real(kind=r_def)            :: inner2
+    real(kind=r_def)            :: mass_flux_1_mass_flux_1_input_inner_prod
+    real(kind=r_def)            :: mass_flux_2_mass_flux_2_input_inner_prod
+    real(kind=r_def)            :: adv_inc_adv_inc_input_inner_prod
+    real(kind=r_def)            :: density_density_input_inner_prod
+    real(kind=r_def)            :: wind_wind_input_inner_prod
+    real(kind=r_def), parameter :: eps = 1e-30_r_def
 
     ! Test parameters and variables
     real(kind=r_def), parameter :: overall_tolerance = 1500.0_r_def
@@ -166,12 +172,19 @@ module atlt_advective_and_flux_alg_mod
                  x_innerproduct_x( density_inner_prod, density ),         &
                  x_innerproduct_x( wind_inner_prod, wind ) )
 
+    ! Determining scale factors
+    mass_flux_1_sf = 1.0_r_def/(mass_flux_1_inner_prod + eps)
+    mass_flux_2_sf = 1.0_r_def/(mass_flux_2_inner_prod + eps)
+    adv_inc_sf = 1.0_r_def/(adv_inc_inner_prod + eps)
+    density_sf = 1.0_r_def/(density_inner_prod + eps)
+    wind_sf = 1.0_r_def/(wind_inner_prod + eps)
+
     inner1 = 0.0_r_def
-    inner1 = inner1 + mass_flux_1_inner_prod
-    inner1 = inner1 + mass_flux_2_inner_prod
-    inner1 = inner1 + adv_inc_inner_prod
-    inner1 = inner1 + density_inner_prod
-    inner1 = inner1 + wind_inner_prod
+    inner1 = inner1 + mass_flux_1_inner_prod*mass_flux_1_sf
+    inner1 = inner1 + mass_flux_2_inner_prod*mass_flux_2_sf
+    inner1 = inner1 + adv_inc_inner_prod*adv_inc_sf
+    inner1 = inner1 + density_inner_prod*density_sf
+    inner1 = inner1 + wind_inner_prod*wind_sf
     write(log_scratch_space, *) "atlt_advective_and_flux inner products:"
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
     write(log_scratch_space, *) "mass_flux_1 inner product = ", mass_flux_1_inner_prod
@@ -184,6 +197,13 @@ module atlt_advective_and_flux_alg_mod
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
     write(log_scratch_space, *) "wind inner product = ", wind_inner_prod
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+
+    ! Scaling fields
+    call invoke( inc_a_times_X( mass_flux_1_sf, mass_flux_1 ), &
+                 inc_a_times_X( mass_flux_2_sf, mass_flux_2 ), &
+                 inc_a_times_X( adv_inc_sf, adv_inc ),         &
+                 inc_a_times_X( density_sf, density ),         &
+                 inc_a_times_X( wind_sf, wind ) )
 
     ! Adjoint alg call and inner products
     mass_flux_1_mass_flux_1_input_inner_prod = 0.0_r_def

@@ -94,11 +94,13 @@ module atlt_wind_transport_alg_mod
     ! Inner products
     real(kind=r_def)            :: inner1
     real(kind=r_def)            :: rhs_u_inner_prod
+    real(kind=r_def)            :: rhs_u_sf
     real(kind=r_def)            :: wind_n_inner_prod
-    real(kind=r_def), parameter :: rhs_u_sf = 1.0E7_r_def
+    real(kind=r_def)            :: wind_n_sf
     real(kind=r_def)            :: inner2
     real(kind=r_def)            :: ru_ru_inp_inner_prod
     real(kind=r_def)            :: wn_wn_inp_inner_prod
+    real(kind=r_def), parameter :: eps = 1e-30_r_def
 
     ! Test parameters and variables
     real(kind=r_def), parameter :: overall_tolerance = 1500.0_r_def
@@ -163,13 +165,16 @@ module atlt_wind_transport_alg_mod
     call invoke( x_innerproduct_x( rhs_u_inner_prod, rhs_u ), &
                  x_innerproduct_x( wind_n_inner_prod, wind_n ) )
 
+    ! Determining scale factors
+    rhs_u_sf = 1.0_r_def/(rhs_u_inner_prod + eps)
+    wind_n_sf = 1.0_r_def/(wind_n_inner_prod + eps)
 
     inner1 = 0.0_r_def
     inner1 = inner1 + rhs_u_inner_prod*rhs_u_sf
-    inner1 = inner1 + wind_n_inner_prod
+    inner1 = inner1 + wind_n_inner_prod*wind_n_sf
     write(log_scratch_space, *) "atlt_wind_transport inner products:"
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
-    write(log_scratch_space, *) "rhs_u inner product = ", rhs_u_inner_prod*rhs_u_sf
+    write(log_scratch_space, *) "rhs_u inner product = ", rhs_u_inner_prod
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
     write(log_scratch_space, *) "wind_n inner product = ", wind_n_inner_prod
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
@@ -179,7 +184,9 @@ module atlt_wind_transport_alg_mod
     call wind_pc_dir_prod_rdef( inner1, pert_transport_controller, mesh_id, direction_v )
     call wind_pc_dir_prod_rdef( inner1, pert_transport_controller, mesh_id, direction_3d )
 
-    call invoke( inc_a_times_X(rhs_u_sf, rhs_u) )
+    ! Scaling fields
+    call invoke( inc_a_times_X( rhs_u_sf, rhs_u ), &
+                 inc_a_times_X( wind_n_sf, wind_n ) )
 
     ! Adjoint alg call and inner products
     ru_ru_inp_inner_prod = 0.0_r_def

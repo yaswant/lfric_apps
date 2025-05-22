@@ -136,10 +136,12 @@ module adjt_transport_controller_alg_mod
     type(r_tran_field_type) :: dummy_tw
 
     ! Inner products
-    real(kind=r_def) :: inner1
-    real(kind=r_def) :: ref_field_inner_prod
-    real(kind=r_def) :: inner2
-    real(kind=r_def) :: rf_rf_inp_inner_prod
+    real(kind=r_def)            :: inner1
+    real(kind=r_def)            :: ref_field_inner_prod
+    real(kind=r_def)            :: ref_field_sf
+    real(kind=r_def)            :: inner2
+    real(kind=r_def)            :: rf_rf_inp_inner_prod
+    real(kind=r_def), parameter :: eps = 1e-30_r_def
 
     ! Test parameters and variables
     real(kind=r_def), parameter :: overall_tolerance = 1500.0_r_def
@@ -170,13 +172,20 @@ module adjt_transport_controller_alg_mod
     ! < Mx, Mx >
     call invoke( x_innerproduct_x( ref_field_inner_prod, &
                                    ref_field_rdef ) )
+
+    ! Determining scale factors
+    ref_field_sf = 1.0_r_def/(ref_field_inner_prod + eps)
+
     inner1 = 0.0_r_def
-    inner1 = inner1 + ref_field_inner_prod
+    inner1 = inner1 + ref_field_inner_prod*ref_field_sf
     write(log_scratch_space, *) "adjt_ls_wind_pert_rho_initialiser inner products:"
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
     write(log_scratch_space, *) "ref_field_rdef inner product = ", ref_field_inner_prod
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
     call ctrlr_ref_field_prod_rdef( inner1, ls_wind_pert_rho_controller )
+
+    ! Scaling fields
+    call invoke( inc_a_times_X( ref_field_sf, ref_field_rdef ) )
 
     ! Adjoint
     rf_rf_inp_inner_prod = 0.0_r_def
@@ -298,12 +307,15 @@ module adjt_transport_controller_alg_mod
     type(r_tran_field_type) :: ctrlr_transporting_wind_inp
 
     ! Inner products
-    real(kind=r_def) :: inner1
-    real(kind=r_def) :: wind_n_inner_prod
-    real(kind=r_def) :: wind_np1_inner_prod
-    real(kind=r_def) :: inner2
-    real(kind=r_def) :: wn_wn_inp_inner_prod
-    real(kind=r_def) :: wnp1_wnp1_inp_inner_prod
+    real(kind=r_def)            :: inner1
+    real(kind=r_def)            :: wind_n_inner_prod
+    real(kind=r_def)            :: wind_n_sf
+    real(kind=r_def)            :: wind_np1_inner_prod
+    real(kind=r_def)            :: wind_np1_sf
+    real(kind=r_def)            :: inner2
+    real(kind=r_def)            :: wn_wn_inp_inner_prod
+    real(kind=r_def)            :: wnp1_wnp1_inp_inner_prod
+    real(kind=r_def), parameter :: eps = 1e-30_r_def
 
     ! Test parameters and variables
     real(kind=r_def), parameter :: overall_tolerance = 1500.0_r_def
@@ -343,9 +355,14 @@ module adjt_transport_controller_alg_mod
                                    wind_n_rdef ),       &
                  x_innerproduct_x( wind_np1_inner_prod, &
                                    wind_np1_rdef ) )
+
+    ! Determining scale factors
+    wind_n_sf = 1.0_r_def/(wind_n_inner_prod + eps)
+    wind_np1_sf = 1.0_r_def/(wind_np1_inner_prod + eps)
+
     inner1 = 0.0_r_def
-    inner1 = inner1 + wind_n_inner_prod
-    inner1 = inner1 + wind_np1_inner_prod
+    inner1 = inner1 + wind_n_inner_prod*wind_n_sf
+    inner1 = inner1 + wind_np1_inner_prod*wind_np1_sf
     write(log_scratch_space, *) "adjt_pert_wind_ls_rho_initialiser inner products:"
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
     write(log_scratch_space, *) "wind_n_rdef inner product = ", wind_n_inner_prod
@@ -355,6 +372,10 @@ module adjt_transport_controller_alg_mod
     call ctrlr_wind_npdt_prod_rdef( inner1, pert_wind_ls_rho_controller, 0_i_def )
     call ctrlr_wind_npdt_prod_rdef( inner1, pert_wind_ls_rho_controller, 1_i_def )
     call ctrlr_transporting_wind_prod_rdef( inner1, pert_wind_ls_rho_controller )
+
+    ! Scaling fields
+    call invoke( inc_a_times_X( wind_n_sf, wind_n_rdef ), &
+                 inc_a_times_X( wind_np1_sf, wind_np1_rdef ) )
 
     ! Adjoint
     wn_wn_inp_inner_prod = 0.0_r_def

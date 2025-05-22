@@ -54,12 +54,15 @@ module atlt_poly_adv_update_alg_mod
     integer(kind=i_def), parameter :: ndata = 4_i_def
 
     ! Inner product variables
-    real(kind=r_def)  :: advective_inner_prod
-    real(kind=r_def)  :: wind_inner_prod
-    real(kind=r_tran) :: inner1
-    real(kind=r_def)  :: advective_advective_input_inner_prod
-    real(kind=r_def)  :: wind_wind_input_inner_prod
-    real(kind=r_tran) :: inner2
+    real(kind=r_def)             :: advective_inner_prod
+    real(kind=r_tran)            :: advective_sf
+    real(kind=r_def)             :: wind_inner_prod
+    real(kind=r_tran)            :: wind_sf
+    real(kind=r_tran)            :: inner1
+    real(kind=r_def)             :: advective_advective_input_inner_prod
+    real(kind=r_def)             :: wind_wind_input_inner_prod
+    real(kind=r_tran)            :: inner2
+    real(kind=r_tran), parameter :: eps = 1e-30_r_tran
 
     ! Test variables
     real(kind=r_tran), parameter :: overall_tolerance = 1500.0_r_tran
@@ -98,9 +101,13 @@ module atlt_poly_adv_update_alg_mod
                  x_innerproduct_x( advective_inner_prod, advective ),                &
                  x_innerproduct_x( wind_inner_prod, wind ) )
 
+    ! Determining scale factors
+    advective_sf = 1.0_r_tran/( real( advective_inner_prod, r_tran ) + eps )
+    wind_sf = 1.0_r_tran/( real( wind_inner_prod, r_tran ) + eps )
+
     inner1 = 0.0_r_tran
-    inner1 = inner1 + real( advective_inner_prod, r_tran )
-    inner1 = inner1 + real( wind_inner_prod, r_tran )
+    inner1 = inner1 + real( advective_inner_prod, r_tran )*advective_sf
+    inner1 = inner1 + real( wind_inner_prod, r_tran )*wind_sf
     write(log_scratch_space, *) "atlt_poly_adv_update inner products:"
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
     write(log_scratch_space, *) "advective inner product = ", real( advective_inner_prod, r_tran )
@@ -108,13 +115,13 @@ module atlt_poly_adv_update_alg_mod
     write(log_scratch_space, *) "wind inner product = ", real( wind_inner_prod, r_tran )
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
 
+    ! Scaling fields
+    call invoke( inc_a_times_X( advective_sf, advective ), &
+                 inc_a_times_X( wind_sf, wind ) )
+
     advective_advective_input_inner_prod = 0.0_r_def
     wind_wind_input_inner_prod = 0.0_r_def
 
-!    call invoke( atl_poly_adv_update_kernel_type( advective,                         &
-!                                                  ls_reconstruction, stencil_extent, &
-!                                                  wind, dummy_w2h, stencil_extent,   &
-!                                                  wind_dir ) )
     call invoke_atl_poly_adv_update_kernel_type( advective,         &
                                                  ls_reconstruction, &
                                                  wind, dummy_w2h,   &

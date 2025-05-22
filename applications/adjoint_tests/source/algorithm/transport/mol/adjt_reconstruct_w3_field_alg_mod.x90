@@ -64,12 +64,15 @@ module adjt_reconstruct_w3_field_alg_mod
     integer(kind=i_def), parameter     :: ndata = 4_i_def
 
     ! Inner products
-    real(kind=r_def) :: inner1
-    real(kind=r_def) :: field_new_inner_prod
-    real(kind=r_def) :: field_old_inner_prod
-    real(kind=r_def) :: inner2
-    real(kind=r_def) :: field_new_field_new_input_inner_prod
-    real(kind=r_def) :: field_old_field_old_input_inner_prod
+    real(kind=r_def)            :: inner1
+    real(kind=r_def)            :: field_new_inner_prod
+    real(kind=r_def)            :: field_new_sf
+    real(kind=r_def)            :: field_old_inner_prod
+    real(kind=r_def)            :: field_old_sf
+    real(kind=r_def)            :: inner2
+    real(kind=r_def)            :: field_new_field_new_input_inner_prod
+    real(kind=r_def)            :: field_old_field_old_input_inner_prod
+    real(kind=r_def), parameter :: eps = 1e-30_r_def
 
     ! Test parameters and variables
     real(kind=r_def), parameter :: overall_tolerance = 1500.0_r_def
@@ -108,16 +111,23 @@ module adjt_reconstruct_w3_field_alg_mod
     call invoke( x_innerproduct_x( field_new_inner_prod, field_new ), &
                  x_innerproduct_x( field_old_inner_prod, field_old ) )
 
+    ! Determining scale factors
+    field_new_sf = 1.0_r_def/(field_new_inner_prod + eps)
+    field_old_sf = 1.0_r_def/(field_old_inner_prod + eps)
 
     inner1 = 0.0_r_def
-    inner1 = inner1 + field_new_inner_prod
-    inner1 = inner1 + field_old_inner_prod
+    inner1 = inner1 + field_new_inner_prod*field_new_sf
+    inner1 = inner1 + field_old_inner_prod*field_old_sf
     write(log_scratch_space, *) "adjt_hori_w3_reconstruct inner products:"
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
     write(log_scratch_space, *) "field_new inner product = ", field_new_inner_prod
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
     write(log_scratch_space, *) "field_old inner product = ", field_old_inner_prod
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+
+    ! Scaling fields
+    call invoke( inc_a_times_X( field_new_sf, field_new ), &
+                 inc_a_times_X( field_old_sf, field_old ) )
 
     ! Adjoint alg call and inner products
     field_new_field_new_input_inner_prod = 0.0_r_def

@@ -94,15 +94,18 @@ module atlt_theta_transport_alg_mod
     type(function_space_type), pointer :: vector_space_wtheta_ptr
 
     ! Inner products
-    real(kind=r_def) :: inner1
-    real(kind=r_def) :: theta_out_inner_prod
-    real(kind=r_def) :: theta_inc_inner_prod
-    real(kind=r_def), parameter :: theta_inc_sf = 10.0_r_def
-    real(kind=r_def) :: theta_in_inner_prod
-    real(kind=r_def) :: inner2
-    real(kind=r_def) :: thout_thout_inp_inner_prod
-    real(kind=r_def) :: thinc_thinc_inp_inner_prod
-    real(kind=r_def) :: thin_thin_inp_inner_prod
+    real(kind=r_def)            :: inner1
+    real(kind=r_def)            :: theta_out_inner_prod
+    real(kind=r_def)            :: theta_out_sf
+    real(kind=r_def)            :: theta_inc_inner_prod
+    real(kind=r_def)            :: theta_inc_sf
+    real(kind=r_def)            :: theta_in_inner_prod
+    real(kind=r_def)            :: theta_in_sf
+    real(kind=r_def)            :: inner2
+    real(kind=r_def)            :: thout_thout_inp_inner_prod
+    real(kind=r_def)            :: thinc_thinc_inp_inner_prod
+    real(kind=r_def)            :: thin_thin_inp_inner_prod
+    real(kind=r_def), parameter :: eps = 1e-30_r_def
 
     ! Test parameters and variables
     real(kind=r_def), parameter :: overall_tolerance = 1500.0_r_def
@@ -173,15 +176,20 @@ module atlt_theta_transport_alg_mod
                  x_innerproduct_x( theta_inc_inner_prod, theta_inc ), &
                  x_innerproduct_x( theta_in_inner_prod, theta_in ) )
 
+    ! Determining scale factors
+    theta_out_sf = 1.0_r_def/(theta_out_inner_prod + eps)
+    theta_inc_sf = 1.0_r_def/(theta_inc_inner_prod + eps)
+    theta_in_sf = 1.0_r_def/(theta_in_inner_prod + eps)
+
     inner1 = 0.0_r_def
-    inner1 = inner1 + theta_out_inner_prod
+    inner1 = inner1 + theta_out_inner_prod*theta_out_sf
     inner1 = inner1 + theta_inc_inner_prod*theta_inc_sf
-    inner1 = inner1 + theta_in_inner_prod
+    inner1 = inner1 + theta_in_inner_prod*theta_in_sf
     write(log_scratch_space, *) "atlt_theta_transport inner products:"
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
     write(log_scratch_space, *) "theta_out inner product = ", theta_out_inner_prod
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
-    write(log_scratch_space, *) "theta_inc inner product = ", theta_inc_inner_prod*theta_inc_sf
+    write(log_scratch_space, *) "theta_inc inner product = ", theta_inc_inner_prod
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
     write(log_scratch_space, *) "theta_in inner product = ", theta_in_inner_prod
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
@@ -192,7 +200,9 @@ module atlt_theta_transport_alg_mod
     call wind_pc_dir_prod_rdef( inner1, pert_transport_controller, mesh_id, direction_3d )
 
     ! Scaling fields
-    call invoke( inc_a_times_X( theta_inc_sf, theta_inc ) )
+    call invoke( inc_a_times_X( theta_out_sf, theta_out ), &
+                 inc_a_times_X( theta_inc_sf, theta_inc ), &
+                 inc_a_times_X( theta_in_sf, theta_in ) )
 
     ! Adjoint alg call and inner products
     thout_thout_inp_inner_prod = 0.0_r_def

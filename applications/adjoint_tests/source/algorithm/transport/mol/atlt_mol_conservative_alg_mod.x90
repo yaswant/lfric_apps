@@ -18,7 +18,7 @@ module atlt_mol_conservative_alg_mod
                                                   LOG_LEVEL_ERROR
   use mesh_mod,                            only : mesh_type
   use model_clock_mod,                     only : model_clock_type
-  use finite_element_config_mod,           only : element_order_h,             &
+  use finite_element_config_mod,           only : element_order_h, &
                                                   element_order_v
   use fs_continuity_mod,                   only : W3
   use transport_enumerated_types_mod,      only : direction_3d, &
@@ -83,12 +83,15 @@ module atlt_mol_conservative_alg_mod
     type(function_space_type), pointer :: vector_space_w3_ptr
 
     ! Inner products
-    real(kind=r_def) :: inner1
-    real(kind=r_def) :: field_np1_inner_prod
-    real(kind=r_def) :: field_inner_prod
-    real(kind=r_def) :: inner2
-    real(kind=r_def) :: field_np1_field_np1_input_inner_prod
-    real(kind=r_def) :: field_field_input_inner_prod
+    real(kind=r_def)            :: inner1
+    real(kind=r_def)            :: field_np1_inner_prod
+    real(kind=r_def)            :: field_np1_sf
+    real(kind=r_def)            :: field_inner_prod
+    real(kind=r_def)            :: field_sf
+    real(kind=r_def)            :: inner2
+    real(kind=r_def)            :: field_np1_field_np1_input_inner_prod
+    real(kind=r_def)            :: field_field_input_inner_prod
+    real(kind=r_def), parameter :: eps = 1e-30_r_def
 
     ! Variables used to handle calculations for fields stored in tl_transport_controller
     integer(kind=i_def)                                :: mesh_id
@@ -178,9 +181,13 @@ module atlt_mol_conservative_alg_mod
     call invoke( x_innerproduct_x( field_np1_inner_prod, field_np1 ), &
                  x_innerproduct_x( field_inner_prod, field ) )
 
+    ! Determining scale factors
+    field_np1_sf = 1.0_r_def/(field_np1_inner_prod + eps)
+    field_sf = 1.0_r_def/(field_inner_prod + eps)
+
     inner1 = 0.0_r_def
-    inner1 = inner1 + field_np1_inner_prod
-    inner1 = inner1 + field_inner_prod
+    inner1 = inner1 + field_np1_inner_prod*field_np1_sf
+    inner1 = inner1 + field_inner_prod*field_sf
     write(log_scratch_space, *) "atlt_mol_conservative inner products:"
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
     write(log_scratch_space, *) "field_np1 inner product = ", field_np1_inner_prod
@@ -194,6 +201,10 @@ module atlt_mol_conservative_alg_mod
     call wind_pc_dir_prod_rdef( inner1, pert_transport_controller, mesh_id, direction_h )
     call wind_pc_dir_prod_rdef( inner1, pert_transport_controller, mesh_id, direction_v )
     call wind_pc_dir_prod_rdef( inner1, pert_transport_controller, mesh_id, direction_3d )
+
+    ! Scaling fields
+    call invoke( inc_a_times_X( field_np1_sf, field_np1 ), &
+                 inc_a_times_X( field_sf, field ) )
 
     ! Adjoint alg call and inner products
     field_np1_field_np1_input_inner_prod = 0.0_r_def

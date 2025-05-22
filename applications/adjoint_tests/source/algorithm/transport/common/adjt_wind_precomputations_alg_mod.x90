@@ -88,14 +88,18 @@ module adjt_wind_precomputations_alg_mod
     type(function_space_type),                 pointer :: dummy_vs
 
     ! Inner products
-    real(kind=r_tran) :: inner1
-    real(kind=r_def)  :: transporting_wind_inner_prod
-    real(kind=r_def)  :: wind_n_inner_prod
-    real(kind=r_def)  :: wind_np1_inner_prod
-    real(kind=r_tran) :: inner2
-    real(kind=r_def)  :: tw_tw_inp_inner_prod
-    real(kind=r_def)  :: wn_wn_inp_inner_prod
-    real(kind=r_def)  :: wnp1_wnp1_inp_inner_prod
+    real(kind=r_tran)            :: inner1
+    real(kind=r_def)             :: transporting_wind_inner_prod
+    real(kind=r_tran)            :: transporting_wind_sf
+    real(kind=r_def)             :: wind_n_inner_prod
+    real(kind=r_tran)            :: wind_n_sf
+    real(kind=r_def)             :: wind_np1_inner_prod
+    real(kind=r_tran)            :: wind_np1_sf
+    real(kind=r_tran)            :: inner2
+    real(kind=r_def)             :: tw_tw_inp_inner_prod
+    real(kind=r_def)             :: wn_wn_inp_inner_prod
+    real(kind=r_def)             :: wnp1_wnp1_inp_inner_prod
+    real(kind=r_tran), parameter :: eps = 1e-30_r_tran
 
     ! Test parameters and variables
     real(kind=r_tran), parameter :: overall_tolerance = 1500.0_r_tran
@@ -177,10 +181,16 @@ module adjt_wind_precomputations_alg_mod
                                    wind_n ),                     &
                  x_innerproduct_x( wind_np1_inner_prod,          &
                                    wind_np1 ) )
+
+    ! Determining scale factors
+    transporting_wind_sf = 1.0_r_tran/( real( transporting_wind_inner_prod, r_tran ) + eps )
+    wind_n_sf = 1.0_r_tran/( real( wind_n_inner_prod, r_tran ) + eps )
+    wind_np1_sf = 1.0_r_tran/( real( wind_np1_inner_prod, r_tran ) + eps )
+
     inner1 = 0.0_r_tran
-    inner1 = inner1 + real( transporting_wind_inner_prod, r_tran )
-    inner1 = inner1 + real( wind_n_inner_prod, r_tran )
-    inner1 = inner1 + real( wind_np1_inner_prod, r_tran )
+    inner1 = inner1 + real( transporting_wind_inner_prod, r_tran )*transporting_wind_sf
+    inner1 = inner1 + real( wind_n_inner_prod, r_tran )*wind_n_sf
+    inner1 = inner1 + real( wind_np1_inner_prod, r_tran )*wind_np1_sf
     write(log_scratch_space, *) "adjt_wind_precomputations_initialiser inner products:"
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
     write(log_scratch_space, *) "transporting_wind inner product = ", real( transporting_wind_inner_prod, r_tran )
@@ -194,6 +204,11 @@ module adjt_wind_precomputations_alg_mod
     call wind_pc_dir_prod_rtran( inner1, pert_transport_controller, mesh_id, direction_h )
     call wind_pc_dir_prod_rtran( inner1, pert_transport_controller, mesh_id, direction_v )
     call wind_pc_dir_prod_rtran( inner1, pert_transport_controller, mesh_id, direction_3d )
+
+    ! Scaling fields
+    call invoke( inc_a_times_X( transporting_wind_sf, transporting_wind ), &
+                 inc_a_times_X( wind_n_sf, wind_n ),                       &
+                 inc_a_times_X( wind_np1_sf, wind_np1 ) )
 
     ! Adjoint
     tw_tw_inp_inner_prod = 0.0_r_def

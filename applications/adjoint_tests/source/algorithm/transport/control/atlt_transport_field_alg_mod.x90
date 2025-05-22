@@ -74,12 +74,15 @@ module atlt_transport_field_alg_mod
     type(function_space_type), pointer :: field_n_fs
 
     ! Inner products
-    real(kind=r_def) :: inner1
-    real(kind=r_def) :: field_np1_inner_prod
-    real(kind=r_def) :: field_n_inner_prod
-    real(kind=r_def) :: inner2
-    real(kind=r_def) :: field_np1_field_np1_input_inner_prod
-    real(kind=r_def) :: field_n_field_n_input_inner_prod
+    real(kind=r_def)            :: inner1
+    real(kind=r_def)            :: field_np1_inner_prod
+    real(kind=r_def)            :: field_np1_sf
+    real(kind=r_def)            :: field_n_inner_prod
+    real(kind=r_def)            :: field_n_sf
+    real(kind=r_def)            :: inner2
+    real(kind=r_def)            :: field_np1_field_np1_input_inner_prod
+    real(kind=r_def)            :: field_n_field_n_input_inner_prod
+    real(kind=r_def), parameter :: eps = 1e-30_r_def
 
     ! Variables used to handle calculations for fields stored in tl_transport_controller
     integer(kind=i_def)                                :: mesh_id
@@ -158,9 +161,13 @@ module atlt_transport_field_alg_mod
     call invoke( x_innerproduct_x( field_np1_inner_prod, field_np1 ), &
                  x_innerproduct_x( field_n_inner_prod, field_n ) )
 
+    ! Determining scale factors
+    field_np1_sf = 1.0_r_def/(field_np1_inner_prod + eps)
+    field_n_sf = 1.0_r_def/(field_n_inner_prod + eps)
+
     inner1 = 0.0_r_def
-    inner1 = inner1 + field_np1_inner_prod
-    inner1 = inner1 + field_n_inner_prod
+    inner1 = inner1 + field_np1_inner_prod*field_np1_sf
+    inner1 = inner1 + field_n_inner_prod*field_n_sf
     write(log_scratch_space, *) "atlt_transport_field inner products:"
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
     write(log_scratch_space, *) "field_np1 inner product = ", field_np1_inner_prod
@@ -172,6 +179,10 @@ module atlt_transport_field_alg_mod
     call wind_pc_dir_prod_rdef( inner1, pert_transport_controller, mesh_id, direction_h )
     call wind_pc_dir_prod_rdef( inner1, pert_transport_controller, mesh_id, direction_v )
     call wind_pc_dir_prod_rdef( inner1, pert_transport_controller, mesh_id, direction_3d )
+
+    ! Scaling fields
+    call invoke( inc_a_times_X( field_np1_sf, field_np1 ), &
+                 inc_a_times_X( field_n_sf, field_n ) )
 
     ! Adjoint alg call and inner products
     field_np1_field_np1_input_inner_prod = 0.0_r_def

@@ -86,10 +86,12 @@ module adjt_flux_precomputations_alg_mod
     type(function_space_type),                 pointer :: dummy_vs
 
     ! Inner products
-    real(kind=r_tran) :: inner1
-    real(kind=r_def)  :: ref_field_inner_prod
-    real(kind=r_tran) :: inner2
-    real(kind=r_def)  :: rf_rf_inp_inner_prod
+    real(kind=r_tran)            :: inner1
+    real(kind=r_def)             :: ref_field_inner_prod
+    real(kind=r_tran)            :: ref_field_sf
+    real(kind=r_tran)            :: inner2
+    real(kind=r_def)             :: rf_rf_inp_inner_prod
+    real(kind=r_tran), parameter :: eps = 1e-30_r_tran
 
     ! Test parameters and variables
     real(kind=r_tran), parameter :: overall_tolerance = 1500.0_r_tran
@@ -145,13 +147,20 @@ module adjt_flux_precomputations_alg_mod
     ! < Mx, Mx >
     call invoke( x_innerproduct_x( ref_field_inner_prod, &
                                    ref_field ) )
+
+    ! Determining scale factors
+    ref_field_sf = 1.0_r_tran/( real( ref_field_inner_prod, r_tran ) + eps )
+
     inner1 = 0.0_r_tran
-    inner1 = inner1 + real( ref_field_inner_prod, r_tran )
+    inner1 = inner1 + real( ref_field_inner_prod, r_tran )*ref_field_sf
     write(log_scratch_space, *) "adjt_flux_precomputations_initialiser inner products:"
     call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
     write(log_scratch_space, *) "ref_field inner product = ", real( ref_field_inner_prod, r_tran )
     call flux_pc_ref_field_prod_rtran( inner1, ls_transport_controller, 1_i_def )
     call flux_pc_ref_mass_prod_rtran( inner1, ls_transport_controller, 1_i_def )
+
+    ! Scaling fields
+    call invoke( inc_a_times_X( ref_field_sf, ref_field ) )
 
     ! Adjoint
     rf_rf_inp_inner_prod = 0.0_r_def
@@ -223,10 +232,12 @@ module adjt_flux_precomputations_alg_mod
     type(function_space_type),                 pointer :: dummy_vs
 
     ! Inner products
-    real(kind=r_def)  :: ref_flux_inner_prod
-    real(kind=r_tran) :: inner1
-    real(kind=r_def)  :: ref_flux_ref_flux_inp_inner_prod
-    real(kind=r_tran) :: inner2
+    real(kind=r_def)             :: ref_flux_inner_prod
+    real(kind=r_tran)            :: ref_flux_sf
+    real(kind=r_tran)            :: inner1
+    real(kind=r_def)             :: ref_flux_ref_flux_inp_inner_prod
+    real(kind=r_tran)            :: inner2
+    real(kind=r_tran), parameter :: eps = 1e-30_r_tran
 
     ! Test parameters and variables
     real(kind=r_tran), parameter :: overall_tolerance = 1500.0_r_tran
@@ -263,13 +274,21 @@ module adjt_flux_precomputations_alg_mod
       ref_flux_inner_prod = 0.0_r_def
       call invoke( setval_random( ref_flux(step) ), &
                    setval_X( ref_flux_inp(step), ref_flux(step) ) )
+
       ! Tangent linear
       call flux_pc % initialise_step( step, ref_flux(step) )
       call invoke( x_innerproduct_x( ref_flux_inner_prod, &
                                      ref_flux(step) ) )
-      inner1 = inner1 + real( ref_flux_inner_prod, r_tran )
+
+      ! Determining scale factors
+      ref_flux_sf = 1.0_r_tran/( real( ref_flux_inner_prod, r_tran ) + eps )
+
+      inner1 = inner1 + real( ref_flux_inner_prod, r_tran )*ref_flux_sf
       write(log_scratch_space, *) "ref_flux(step = ", step, ") inner product = ", ref_flux_inner_prod
       call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+
+      ! Scaling fields
+      call invoke( inc_a_times_X( ref_flux_sf, ref_flux(step) ) )
     end do
     call flux_pc_ref_flux_prod_rtran( inner1, pert_wind_ls_rho_controller, 1_i_def )
 
