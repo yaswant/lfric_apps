@@ -12,7 +12,7 @@
 !>
 module jedi_lfric_file_meta_mod
 
-  use constants_mod,  only : str_def, l_def, i_def
+  use constants_mod,  only : str_def, str_max_filename, l_def, i_def
   use file_mod,       only : FILE_MODE_READ, FILE_MODE_WRITE
   use log_mod,        only : log_event, log_scratch_space, &
                              LOG_LEVEL_ERROR
@@ -24,19 +24,19 @@ module jedi_lfric_file_meta_mod
 type, public :: jedi_lfric_file_meta_type
 
     !> The name of the file including full path if it is not located in the current directory
-    character(str_def)  :: file_name
+    character(str_max_filename) :: file_name
 
     !> A unique string that will be used to access the file within a given context
-    character(str_def)  :: xios_id
+    character(str_def)          :: xios_id
 
     !> The mode to perform IO with defined as an integer value
-    integer(i_def)      :: io_mode
+    integer(i_def)              :: io_mode
 
     !> The frequency in timesteps that the file is read-from/written-to
-    integer(i_def)      :: freq
+    integer(i_def)              :: freq
 
     !> The XIOS ID for the group that defines the fields to be used in the IO
-    character(str_def)  :: field_group_id
+    character(str_def)          :: field_group_id
 
 contains
 
@@ -72,7 +72,7 @@ subroutine initialise( self, file_name, xios_id, io_mode_str, &
 
   class( jedi_lfric_file_meta_type ), intent(inout) :: self
 
-  character(str_def), intent(in) :: file_name
+  character(len=*),   intent(in) :: file_name
   character(str_def), intent(in) :: xios_id
   character(str_def), intent(in) :: io_mode_str
   integer(i_def),     intent(in) :: freq
