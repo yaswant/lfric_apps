@@ -1,7 +1,7 @@
-# This CODEOWNERS file includes a primary codeowner and a deputy for each section. 
+# This CODEOWNERS file includes a primary codeowner and a deputy for each section.
 # Codeowners who are not in a comment will be automatically notified of changes
 # to the listed files. All codeowners listed are valid points of contact
-# for discussing changes and seeking approval for work. 
+# for discussing changes and seeking approval for work.
 
 # Applications
 **/adjoint_tests             @DrTVockerodtMO                     # @mo-joshuacolclough
@@ -76,5 +76,5 @@ build/                                 @MetOffice/ssdteam @hiker
 # Other areas
 documentation                           # @MetOffice/ssdteam
 .github/                                @MetOffice/ssdteam
-LICENSE                                 @yaswant
+LICENCE                                 @yaswant
 README.md                               @MetOffice/ssdteam
