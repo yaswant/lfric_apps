@@ -1,0 +1,47 @@
+[extra.ford]
+project = "lfric_apps"
+version = "2026.03.2"
+project_github = "https://github.com/MetOffice/lfric_apps"
+
+# Preprocessing
+preprocess = true
+
+# Directories to scan
+src_dir = [
+    "applications",
+    "interfaces",
+    "science",
+ ]
+page_dir = "./api-docs"
+css = "./api-docs/ford.css"
+
+# Document settings
+creation_date = "%Y-%m-%dT%H:%M"
+display = [ "public" ]
+max_frontpage_items = 4
+md_extensions = "markdown.extensions.toc"
+print_creation_date = true
+search = false  # Default true  - Substaintially increases runtime
+source = false  # Default false - Substaintially increases runtime
+
+# Graph Settings
+coloured_edges = true
+# graph = false  # Default false - Substaintially increases runtime
+graph = false
+# inheritance_graph = true
+# usage_graph = true
+graph_maxdepth = 4
+graph_maxnodes = 20
+show_proc_parent = true
+
+# Output
+output_dir = "${HOME}/public_html/lfric_apps/apidocs"
+
+# Run-Time Behaviour
+# warn = false                    # Default false - Too many warnings to be useful
+# An array of inline tables:
+extra_filetypes = [
+  { extension = "cpp", comment = "//" },
+  { extension = "sh", comment = "#", lexer = "bash" },
+  { extension = "py", comment = "#", lexer = "python" },
+]
